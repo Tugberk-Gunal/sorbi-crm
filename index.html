@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SORBİ CRM</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-mark">S</div>
+            <div>
+                <strong>SORBİ</strong>
+                <span>CRM</span>
+            </div>
+        </div>
+
+        <nav class="menu">
+            <button class="menu-link active" data-page="customers">
+                <span>👥</span> Müşteriler
+            </button>
+            <button class="menu-link" data-page="followups">
+                <span>📅</span> Takipler
+            </button>
+            <button class="menu-link" data-page="interactions">
+                <span>💬</span> Görüşmeler
+            </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <button id="themeToggle" class="sidebar-button" title="Tema değiştir">☾</button>
+            <button id="logoutButton" class="sidebar-button logout-button">↪ Çıkış</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <div id="pageEyebrow" class="eyebrow">MÜŞTERİ YÖNETİMİ</div>
+                <h1 id="pageTitle">Müşteriler</h1>
+                <p id="pageDescription">Müşterilerinizi ve takiplerinizi kolayca yönetin.</p>
+            </div>
+            <button id="addCustomerButton" class="primary-button">＋ Yeni Müşteri</button>
+        </header>
+
+        <section class="summary-grid">
+            <div class="summary-card"><span>Toplam Müşteri</span><strong id="totalCustomers">0</strong></div>
+            <div class="summary-card"><span>Bugünkü Takip</span><strong id="todayTasks">0</strong></div>
+            <div class="summary-card"><span>Teklif Verildi</span><strong id="offerCustomers">0</strong></div>
+            <div class="summary-card"><span>Poliçeleşti</span><strong id="saleCustomers">0</strong></div>
+            <div class="summary-card"><span>Geciken Takip</span><strong id="overdueTasks">0</strong></div>
+        </section>
+
+        <section id="customersPage" class="page-section">
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Müşteri Listesi</h2>
+                        <span id="customerCount">0 müşteri</span>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <input id="searchInput" type="search" placeholder="Müşteri, telefon veya TC ara...">
+                    <select id="statusFilter">
+                        <option value="all">Tüm Durumlar</option>
+                    </select>
+                    <select id="productFilter">
+                        <option value="all">Tüm Ürünler</option>
+                        <option value="TSS">TSS</option>
+                        <option value="ÖSS">ÖSS</option>
+                        <option value="Diğer">Diğer</option>
+                    </select>
+                    <select id="dateFilter">
+                        <option value="all">Tüm Takip Tarihleri</option>
+                        <option value="overdue">Geciken</option>
+                        <option value="today">Bugün</option>
+                        <option value="tomorrow">Yarın</option>
+                        <option value="week">Bu Hafta</option>
+                    </select>
+                    <button id="clearFilters" class="secondary-button">Temizle</button>
+                </div>
+
+                <div class="table-head">
+                    <span>Müşteri</span>
+                    <span>Telefon</span>
+                    <span>Ürün</span>
+                    <span>Durum</span>
+                    <span>Son Görüşme</span>
+                    <span>Takip Tarihi</span>
+                    <span>Aksiyon</span>
+                </div>
+
+                <div id="customerList"></div>
+                <div id="emptyState" class="empty-state hidden">Filtrelere uygun müşteri bulunamadı.</div>
+            </div>
+        </section>
+
+        <section id="followupsPage" class="page-section hidden-page">
+    <div class="panel">
+
+        <div class="panel-header followups-header">
+
+            <div class="followups-title">
+    <div class="followups-header-main">
+        <h2>Takipler</h2>
+        <span id="followupCount" class="badge-count">0 takip</span>
+    </div>
+
+    <div class="followups-date">
+        <span id="currentDate">25 Ağustos 2026</span>
+        <span id="currentTime" class="time-highlight">09:00</span>
+        <span id="currentDay" class="day-highlight">Bugün</span>
+    </div>
+</div>
+
+
+            <div class="followup-filters">
+                <button class="followup-filter active" data-followup-filter="today">
+                    Bugün
+                </button>
+
+                <button class="followup-filter" data-followup-filter="overdue">
+                    Geciken
+                </button>
+
+                <button class="followup-filter" data-followup-filter="tomorrow">
+                    Yarın
+                </button>
+
+                <button class="followup-filter" data-followup-filter="week">
+                    Bu Hafta
+                </button>
+
+                <button class="followup-filter" data-followup-filter="all">
+                    Tümü
+                </button>
+            </div>
+
+        </div>
+
+        <div id="followupList" class="followup-list"></div>
+
+        <div id="followupEmpty" class="empty-state hidden">
+            Bu filtrede takip bulunmuyor.
+        </div>
+
+    </div>
+</section>
+
+        <section id="interactionsPage" class="page-section hidden-page">
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Görüşme Geçmişi</h2>
+                        <span id="interactionCount">0 görüşme</span>
+                    </div>
+                </div>
+                <div id="allInteractionList" class="interaction-list"></div>
+                <div id="interactionPageEmpty" class="empty-state hidden">Henüz görüşme kaydı bulunmuyor.</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Customer Modal -->
+    <div id="customerModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div>
+                    <span class="eyebrow">MÜŞTERİ</span>
+                    <h2 id="modalTitle">Yeni Müşteri</h2>
+                </div>
+                <button id="closeCustomerModal" class="modal-close">×</button>
+            </div>
+
+            <form id="customerForm">
+                <input id="customerId" type="hidden">
+
+                <div class="form-grid">
+                    <label>Ad Soyad
+                        <input id="customerName" required type="text" placeholder="Ad Soyad">
+                    </label>
+                    <label>Telefon
+                        <input id="customerPhone" type="text" placeholder="05xx xxx xx xx">
+                    </label>
+                    <label>TC Kimlik No
+                        <input id="customerTc" type="text" inputmode="numeric" maxlength="11" placeholder="11 haneli TC">
+                    </label>
+                    <label>Ürün
+                        <select id="customerProduct">
+                            <option value="TSS">TSS</option>
+                            <option value="ÖSS">ÖSS</option>
+                            <option value="Diğer">Diğer</option>
+                        </select>
+                    </label>
+                    <label>Durum
+                        <select id="customerStatus"></select>
+                    </label>
+                    <label>Sonraki Takip
+                        <input id="nextActionDate" type="date">
+                    </label>
+                    <label class="full-width">Not
+                        <textarea id="customerNote" rows="4" placeholder="Müşteriyle ilgili not..."></textarea>
+                    </label>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" id="cancelCustomer" class="secondary-button">Vazgeç</button>
+                    <button type="submit" class="primary-button">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Detail Overlay -->
+    <div id="detailOverlay" class="modal-overlay">
+        <div class="modal detail-modal">
+            <div class="modal-header">
+                <div>
+                    <span class="eyebrow">MÜŞTERİ DETAYI</span>
+                    <h2 id="detailName">Müşteri</h2>
+                </div>
+                <button id="closeDetail" class="modal-close">×</button>
+            </div>
+
+            <div class="detail-profile">
+                <div id="detailAvatar" class="detail-avatar">?</div>
+                <div>
+                    <h3 id="detailFullName">-</h3>
+                    <p id="detailPhone">-</p>
+                </div>
+            </div>
+
+           <div class="detail-grid">
+    <div>
+        <span>Ürün</span>
+        <strong id="detailProduct">-</strong>
+    </div>
+
+    <div>
+        <span>Durum</span>
+        <strong id="detailStatus">-</strong>
+    </div>
+
+    <div>
+        <span>Son Görüşme</span>
+        <strong id="detailLastCall">-</strong>
+    </div>
+
+    <div>
+        <span>Sonraki Takip</span>
+        <strong id="detailNextAction">-</strong>
+    </div>
+
+    <div>
+        <span>Kaydedilme Tarihi</span>
+        <strong id="detailCreatedAt">-</strong>
+    </div>
+</div>
+
+            <div class="detail-note">
+                <span>Not</span>
+                <p id="detailNote">-</p>
+            </div>
+
+            <div class="detail-interactions">
+                <div class="section-title">
+                    <h3>Görüşmeler</h3>
+                    <button id="addInteractionButton" class="primary-button small">＋ Görüşme Ekle</button>
+                </div>
+                <div id="interactionList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interaction Modal -->
+    <div id="interactionModal" class="modal-overlay">
+        <div class="modal small-modal">
+            <div class="modal-header">
+                <div>
+                    <span class="eyebrow">GÖRÜŞME</span>
+                    <h2>Görüşme Ekle</h2>
+                </div>
+                <button id="closeInteraction" class="modal-close">×</button>
+            </div>
+
+            <form id="interactionForm">
+                <label>Görüşme Türü
+                    <select id="interactionType">
+                        <option>Arama</option>
+                        <option>WhatsApp</option>
+                        <option>SMS</option>
+                        <option>Yüz Yüze</option>
+                        <option>Diğer</option>
+                    </select>
+                </label>
+
+                <label>Not
+                    <textarea id="interactionNote" rows="5" required placeholder="Görüşme notunu yazın..."></textarea>
+                </label>
+
+                <div class="modal-actions">
+                    <button type="button" id="cancelInteraction" class="secondary-button">Vazgeç</button>
+                    <button type="submit" class="primary-button">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
