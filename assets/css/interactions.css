@@ -401,3 +401,13 @@
 .interaction-confirm-delete:active {
     transform: scale(.97);
 }
+
+.renewal-offer-icon {
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+}
+
+.renewal-offer-preview {
+    border-color: rgba(25, 169, 116, .22);
+    background: var(--primary-soft);
+}

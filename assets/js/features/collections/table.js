@@ -30,8 +30,8 @@ function prepareCollectionAddButton() {
     button = document.createElement("button");
     button.id = "addCollectionButton";
     button.type = "button";
-    button.className = "collection-add-button";
-    button.innerHTML = `<span>＋</span> Yeni Poliçe`;
+    button.className = "primary-button";
+    button.textContent = "＋ Yeni Poliçe";
 
     header.appendChild(button);
     return button;
@@ -191,7 +191,7 @@ function renderCollections() {
                             ? `
                                 <button
                                     type="button"
-                                    class="collection-action-button collection-paid-button"
+                                    class="row-action collection-paid-button"
                                     data-action="paid"
                                     data-id="${collectionEscape(item.id)}"
                                     title="Tahsil Edildi"
@@ -202,7 +202,7 @@ function renderCollections() {
 
                     <button
                         type="button"
-                        class="collection-action-button"
+                        class="row-action"
                         data-action="edit"
                         data-id="${collectionEscape(item.id)}"
                         title="Düzenle"
@@ -210,11 +210,11 @@ function renderCollections() {
 
                     <button
                         type="button"
-                        class="collection-action-button collection-delete-button"
+                        class="row-action delete"
                         data-action="delete"
                         data-id="${collectionEscape(item.id)}"
                         title="Sil"
-                    >🗑</button>
+                    >×</button>
                 </div>
             </div>
         `;

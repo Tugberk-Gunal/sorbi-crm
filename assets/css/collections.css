@@ -24,33 +24,6 @@
     line-height: 1;
 }
 
-.collection-add-button {
-    flex: 0 0 auto;
-    min-height: 42px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    padding: 0 15px;
-    border: 0;
-    border-radius: 10px;
-    background: var(--primary);
-    color: #fff;
-    font-size: 13px;
-    font-weight: 750;
-    box-shadow: 0 5px 15px rgba(25, 169, 116, .18);
-    transition: background .15s ease, transform .12s ease;
-}
-
-.collection-add-button:hover {
-    background: var(--primary-dark);
-    transform: translateY(-1px);
-}
-
-.collection-add-button:active {
-    transform: scale(.97);
-}
-
 /* =========================================================
    ÖZET
 ========================================================= */
@@ -345,37 +318,16 @@
     display: flex !important;
     align-items: center;
     justify-content: flex-start;
-    gap: 7px;
-}
-
-.collection-action-button {
-    width: 32px;
-    height: 32px;
-    flex: 0 0 32px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--surface);
-    color: var(--muted);
-    font-size: 12px;
-    line-height: 1;
-    transition: background .15s ease, color .15s ease, transform .12s ease;
-}
-
-.collection-action-button:hover {
-    background: var(--surface-soft);
-    color: var(--primary-dark);
+    gap: 5px;
 }
 
 .collection-paid-button {
     color: #16885d;
 }
 
-.collection-delete-button:hover {
-    color: var(--danger);
+.collection-paid-button:hover {
+    color: #16885d;
+    background: rgba(22, 136, 93, .1);
 }
 
 /* =========================================================
@@ -488,7 +440,7 @@ body.dark .collection-status.completed {
         flex-direction: column;
     }
 
-    .collection-add-button {
+    .collections-header .primary-button {
         width: 100%;
     }
 

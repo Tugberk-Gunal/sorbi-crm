@@ -2,6 +2,81 @@
    YAKLAŞAN YENİLEMELER - CRUD / OTOMATİK OLUŞTURMA
 ========================================================= */
 
+let pendingRenewalOfferCustomerId = null;
+
+function ensureRenewalOfferModal() {
+    let overlay = $("renewalOfferModal");
+
+    if (overlay) {
+        return overlay;
+    }
+
+    overlay = document.createElement("div");
+    overlay.id = "renewalOfferModal";
+    overlay.className = "modal-overlay";
+    overlay.innerHTML = `
+        <div class="modal small-modal interaction-delete-modal renewal-offer-modal" role="alertdialog" aria-modal="true" aria-labelledby="renewalOfferTitle">
+            <div class="interaction-delete-icon renewal-offer-icon" aria-hidden="true">✓</div>
+
+            <div class="interaction-delete-copy">
+                <span class="eyebrow">POLİÇE DURUMU</span>
+                <h2 id="renewalOfferTitle">Yenilemelere eklensin mi?</h2>
+                <p>
+                    <strong id="renewalOfferCustomer"></strong> poliçeleşti. Bu müşteri için otomatik yenileme kaydı oluşturabiliriz.
+                </p>
+                <div class="interaction-delete-preview renewal-offer-preview">
+                    Yenileme tarihi bugünden 1 yıl sonrası olarak ayarlanacak. Poliçe bilgilerini daha sonra düzenleyebilirsiniz.
+                </div>
+            </div>
+
+            <div class="modal-actions interaction-delete-actions">
+                <button id="cancelRenewalOffer" class="secondary-button" type="button">Şimdi Değil</button>
+                <button id="confirmRenewalOffer" class="primary-button" type="button">Yenilemelere Ekle</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    $("cancelRenewalOffer").addEventListener("click", closeRenewalOfferModal);
+    $("confirmRenewalOffer").addEventListener("click", confirmRenewalOffer);
+
+    overlay.addEventListener("click", event => {
+        if (event.target === overlay) {
+            closeRenewalOfferModal();
+        }
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && overlay.classList.contains("show")) {
+            closeRenewalOfferModal();
+        }
+    });
+
+    return overlay;
+}
+
+function closeRenewalOfferModal() {
+    $("renewalOfferModal")?.classList.remove("show");
+    pendingRenewalOfferCustomerId = null;
+}
+
+function confirmRenewalOffer() {
+    const customer = customers.find(
+        item => String(item.id) === String(pendingRenewalOfferCustomerId)
+    );
+
+    $("renewalOfferModal")?.classList.remove("show");
+    pendingRenewalOfferCustomerId = null;
+
+    if (!customer || findExistingRenewalForCustomer(customer)) {
+        return;
+    }
+
+    createRenewalFromCustomer(customer);
+    renderRenewals();
+}
+
 function addYearsToDateInput(dateString, years = 1) {
     const parts = String(dateString || "").split("-");
 
@@ -165,16 +240,13 @@ function maybeOfferRenewalForCustomer(customer) {
         return false;
     }
 
-    const confirmed = window.confirm(
-        `${customer.name} müşterisi poliçeleşti. Yaklaşan Yenilemeler'e otomatik eklensin mi?\n\nYenileme tarihi varsayılan olarak 1 yıl sonrası oluşturulacaktır.`
-    );
+    pendingRenewalOfferCustomerId = customer.id;
 
-    if (!confirmed) {
-        return false;
-    }
+    const overlay = ensureRenewalOfferModal();
+    $("renewalOfferCustomer").textContent = customer.name || "Bu müşteri";
+    overlay.classList.add("show");
 
-    createRenewalFromCustomer(customer);
-    renderRenewals();
+    requestAnimationFrame(() => $("confirmRenewalOffer")?.focus());
     return true;
 }
 
