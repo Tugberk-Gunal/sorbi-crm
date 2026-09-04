@@ -1,313 +1,1064 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SORBİ CRM</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/layout.css" />
+    <link rel="stylesheet" href="assets/css/forms.css" />
+    <link rel="stylesheet" href="assets/css/customers.css" />
+    <link rel="stylesheet" href="assets/css/followups.css" />
+    <link rel="stylesheet" href="assets/css/interactions.css" />
+    <link rel="stylesheet" href="assets/css/renewals.css" />
+    <link rel="stylesheet" href="assets/css/collections.css" />
+    <link rel="stylesheet" href="assets/css/avatar-picker.css" />
+    <link rel="stylesheet" href="assets/css/theme.css" />
+    <link rel="stylesheet" href="assets/css/responsive.css" />
+  </head>
+
+  <body>
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
     <aside class="sidebar">
-        <div class="brand">
-            <div class="brand-mark">S</div>
-            <div>
-                <strong>SORBİ</strong>
-                <span>CRM</span>
-            </div>
-        </div>
+      <div class="brand">
+        <img
+          src="sorbi-logo-transparent.png"
+          alt="Sor Bi Sigorta"
+          class="brand-logo brand-logo-light"
+        />
 
-        <nav class="menu">
-            <button class="menu-link active" data-page="customers">
-                <span>👥</span> Müşteriler
-            </button>
-            <button class="menu-link" data-page="followups">
-                <span>📅</span> Takipler
-            </button>
-            <button class="menu-link" data-page="interactions">
-                <span>💬</span> Görüşmeler
-            </button>
-        </nav>
+        <img
+          src="Logo.pngkk.png"
+          alt="Sor Bi Sigorta"
+          class="brand-logo brand-logo-dark"
+        />
+      </div>
 
-        <div class="sidebar-bottom">
-            <button id="themeToggle" class="sidebar-button" title="Tema değiştir">☾</button>
-            <button id="logoutButton" class="sidebar-button logout-button">↪ Çıkış</button>
-        </div>
+      <nav class="menu">
+        <button class="menu-link active" data-page="customers" type="button">
+          <span>👥</span>
+          <span>Müşteriler</span>
+        </button>
+
+        <button class="menu-link" data-page="followups" type="button">
+          <span>📅</span>
+          <span>Takipler</span>
+        </button>
+
+        <button class="menu-link" data-page="interactions" type="button">
+          <span>💬</span>
+          <span>Görüşmeler</span>
+        </button>
+        <button class="menu-link" data-page="renewals" type="button">
+          <span>🔄</span>
+          <span>Yaklaşan Yenilemeler</span>
+        </button>
+
+        <button class="menu-link" data-page="collections" type="button">
+          <span>💳</span>
+          <span>Tahsilat Takip</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <button
+          id="themeToggle"
+          class="sidebar-button"
+          title="Tema değiştir"
+          type="button"
+        >
+          ☾
+        </button>
+
+        <button
+          id="logoutButton"
+          class="sidebar-button logout-button"
+          type="button"
+        >
+          ↪ Çıkış
+        </button>
+      </div>
     </aside>
 
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
+
     <main class="main-content">
-        <header class="topbar">
+      <!-- TOPBAR -->
+
+      <header class="topbar">
+        <div class="page-heading">
+          <div id="pageEyebrow" class="eyebrow">MÜŞTERİ YÖNETİMİ</div>
+
+          <h1 id="pageTitle">Müşteriler</h1>
+
+          <p id="pageDescription">
+            Müşterilerinizi ve takiplerinizi kolayca yönetin.
+          </p>
+        </div>
+
+        <button id="addCustomerButton" class="primary-button" type="button">
+          ＋ Yeni Müşteri
+        </button>
+      </header>
+
+      <!-- =================================================
+             SUMMARY
+        ================================================== -->
+
+      <section class="summary-grid">
+        <div class="summary-card">
+          <span>Toplam Müşteri</span>
+          <strong id="totalCustomers">0</strong>
+        </div>
+
+        <div class="summary-card">
+          <span>Bugünkü Takip</span>
+          <strong id="todayTasks">0</strong>
+        </div>
+
+        <div class="summary-card">
+          <span>Teklif Verildi</span>
+          <strong id="offerCustomers">0</strong>
+        </div>
+
+        <div class="summary-card">
+          <span>Poliçeleşti</span>
+          <strong id="saleCustomers">0</strong>
+        </div>
+
+        <div class="summary-card">
+          <span>Geciken Takip</span>
+          <strong id="overdueTasks">0</strong>
+        </div>
+      </section>
+
+      <!-- =================================================
+             CUSTOMERS PAGE
+        ================================================== -->
+
+      <section id="customersPage" class="page-section">
+        <div class="panel">
+          <div class="panel-header">
             <div>
-                <div id="pageEyebrow" class="eyebrow">MÜŞTERİ YÖNETİMİ</div>
-                <h1 id="pageTitle">Müşteriler</h1>
-                <p id="pageDescription">Müşterilerinizi ve takiplerinizi kolayca yönetin.</p>
+              <h2>Müşteri Listesi</h2>
+
+              <span id="customerCount"> 0 müşteri </span>
             </div>
-            <button id="addCustomerButton" class="primary-button">＋ Yeni Müşteri</button>
-        </header>
+          </div>
 
-        <section class="summary-grid">
-            <div class="summary-card"><span>Toplam Müşteri</span><strong id="totalCustomers">0</strong></div>
-            <div class="summary-card"><span>Bugünkü Takip</span><strong id="todayTasks">0</strong></div>
-            <div class="summary-card"><span>Teklif Verildi</span><strong id="offerCustomers">0</strong></div>
-            <div class="summary-card"><span>Poliçeleşti</span><strong id="saleCustomers">0</strong></div>
-            <div class="summary-card"><span>Geciken Takip</span><strong id="overdueTasks">0</strong></div>
-        </section>
+          <!-- FILTERS -->
 
-        <section id="customersPage" class="page-section">
-            <div class="panel">
-                <div class="panel-header">
-                    <div>
-                        <h2>Müşteri Listesi</h2>
-                        <span id="customerCount">0 müşteri</span>
-                    </div>
-                </div>
+          <div class="filters">
+            <input
+              id="searchInput"
+              type="search"
+              placeholder="Müşteri, telefon veya TC ara..."
+            />
 
-                <div class="filters">
-                    <input id="searchInput" type="search" placeholder="Müşteri, telefon veya TC ara...">
-                    <select id="statusFilter">
-                        <option value="all">Tüm Durumlar</option>
-                    </select>
-                    <select id="productFilter">
-                        <option value="all">Tüm Ürünler</option>
-                        <option value="TSS">TSS</option>
-                        <option value="ÖSS">ÖSS</option>
-                        <option value="Diğer">Diğer</option>
-                    </select>
-                    <select id="dateFilter">
-                        <option value="all">Tüm Takip Tarihleri</option>
-                        <option value="overdue">Geciken</option>
-                        <option value="today">Bugün</option>
-                        <option value="tomorrow">Yarın</option>
-                        <option value="week">Bu Hafta</option>
-                    </select>
-                    <button id="clearFilters" class="secondary-button">Temizle</button>
-                </div>
+            <select id="statusFilter">
+              <option value="all">Tüm Durumlar</option>
+            </select>
 
-                <div class="table-head">
-                    <span>Müşteri</span>
-                    <span>Telefon</span>
-                    <span>Ürün</span>
-                    <span>Durum</span>
-                    <span>Son Görüşme</span>
-                    <span>Takip Tarihi</span>
-                    <span>Aksiyon</span>
-                </div>
+            <select id="productFilter">
+              <option value="all">Tüm Ürünler</option>
 
-                <div id="customerList"></div>
-                <div id="emptyState" class="empty-state hidden">Filtrelere uygun müşteri bulunamadı.</div>
-            </div>
-        </section>
+              <option value="TSS">TSS</option>
 
-        <section id="followupsPage" class="page-section hidden-page">
-    <div class="panel">
+              <option value="ÖSS">ÖSS</option>
 
-        <div class="panel-header followups-header">
+              <option value="Diğer">Diğer</option>
+            </select>
 
+            <select id="dateFilter">
+              <option value="all">Tüm Takip Tarihleri</option>
+
+              <option value="overdue">Geciken</option>
+
+              <option value="today">Bugün</option>
+
+              <option value="tomorrow">Yarın</option>
+
+              <option value="week">Bu Hafta</option>
+            </select>
+
+            <button id="clearFilters" class="secondary-button" type="button">
+              Temizle
+            </button>
+          </div>
+
+          <!-- TABLE HEADER -->
+
+          <div class="table-head">
+            <span>Müşteri</span>
+            <span>Telefon</span>
+            <span>Ürün</span>
+            <span>Durum</span>
+            <span>Son Görüşme</span>
+            <span>Takip Tarihi</span>
+            <span>Aksiyon</span>
+          </div>
+
+          <!-- CUSTOMER LIST -->
+
+          <div id="customerList"></div>
+
+          <div id="emptyState" class="empty-state hidden">
+            Filtrelere uygun müşteri bulunamadı.
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================
+             FOLLOWUPS PAGE
+        ================================================== -->
+
+      <section id="followupsPage" class="page-section hidden-page">
+        <div class="panel">
+          <div class="panel-header followups-header">
             <div class="followups-title">
-    <div class="followups-header-main">
-        <h2>Takipler</h2>
-        <span id="followupCount" class="badge-count">0 takip</span>
-    </div>
+              <div class="followups-header-main">
+                <h2>Takipler</h2>
 
-    <div class="followups-date">
-        <span id="currentDate">25 Ağustos 2026</span>
-        <span id="currentTime" class="time-highlight">09:00</span>
-        <span id="currentDay" class="day-highlight">Bugün</span>
-    </div>
-</div>
+                <span id="followupCount" class="badge-count"> 0 takip </span>
+              </div>
 
+              <div class="followups-date">
+                <span id="currentDate"> 25 Ağustos 2026 </span>
+
+                <span id="currentTime" class="time-highlight"> 09:00 </span>
+
+                <span id="currentDay" class="day-highlight"> Bugün </span>
+              </div>
+            </div>
+
+            <!-- FOLLOWUP FILTERS -->
 
             <div class="followup-filters">
-                <button class="followup-filter active" data-followup-filter="today">
-                    Bugün
-                </button>
+              <button
+                class="followup-filter active"
+                data-followup-filter="today"
+                type="button"
+              >
+                Bugün
+              </button>
 
-                <button class="followup-filter" data-followup-filter="overdue">
-                    Geciken
-                </button>
+              <button
+                class="followup-filter"
+                data-followup-filter="overdue"
+                type="button"
+              >
+                Geciken
+              </button>
 
-                <button class="followup-filter" data-followup-filter="tomorrow">
-                    Yarın
-                </button>
+              <button
+                class="followup-filter"
+                data-followup-filter="tomorrow"
+                type="button"
+              >
+                Yarın
+              </button>
 
-                <button class="followup-filter" data-followup-filter="week">
-                    Bu Hafta
-                </button>
+              <button
+                class="followup-filter"
+                data-followup-filter="week"
+                type="button"
+              >
+                Bu Hafta
+              </button>
 
-                <button class="followup-filter" data-followup-filter="all">
-                    Tümü
-                </button>
+              <button
+                class="followup-filter"
+                data-followup-filter="all"
+                type="button"
+              >
+                Tümü
+              </button>
             </div>
+          </div>
 
-        </div>
+          <!-- FOLLOWUP LIST -->
 
-        <div id="followupList" class="followup-list"></div>
+          <div id="followupList" class="followup-list"></div>
 
-        <div id="followupEmpty" class="empty-state hidden">
+          <div id="followupEmpty" class="empty-state hidden">
             Bu filtrede takip bulunmuyor.
+          </div>
         </div>
+      </section>
 
-    </div>
-</section>
+      <!-- =================================================
+             RENEWALS PAGE
+        ================================================== -->
 
-        <section id="interactionsPage" class="page-section hidden-page">
-            <div class="panel">
-                <div class="panel-header">
-                    <div>
-                        <h2>Görüşme Geçmişi</h2>
-                        <span id="interactionCount">0 görüşme</span>
-                    </div>
-                </div>
-                <div id="allInteractionList" class="interaction-list"></div>
-                <div id="interactionPageEmpty" class="empty-state hidden">Henüz görüşme kaydı bulunmuyor.</div>
+      <section id="renewalsPage" class="page-section hidden-page">
+        <div class="panel">
+          <div class="panel-header renewals-header">
+            <div>
+              <div class="renewals-title-row">
+                <h2>Yaklaşan Yenilemeler</h2>
+
+                <span id="renewalCount" class="badge-count"> 0 poliçe </span>
+              </div>
+
+              <span>
+                Yaklaşan poliçelerinizi ve yenileme tarihlerini takip edin.
+              </span>
             </div>
-        </section>
+
+            <button id="addRenewalButton" class="primary-button" type="button">
+              ＋ Yeni Poliçe
+            </button>
+          </div>
+
+          <!-- RENEWAL SUMMARY -->
+
+          <div class="renewal-summary">
+            <div class="renewal-summary-card">
+              <span>Toplam Poliçe</span>
+
+              <strong id="totalRenewals"> 0 </strong>
+            </div>
+
+            <div class="renewal-summary-card">
+              <span>30 Gün İçinde</span>
+
+              <strong id="renewals30Days"> 0 </strong>
+            </div>
+
+            <div class="renewal-summary-card">
+              <span>7 Gün İçinde</span>
+
+              <strong id="renewals7Days"> 0 </strong>
+            </div>
+
+            <div class="renewal-summary-card">
+              <span>Yenilemesi Geçen</span>
+
+              <strong id="expiredRenewals"> 0 </strong>
+            </div>
+          </div>
+
+          <!-- RENEWAL FILTERS -->
+
+          <div class="filters renewal-filters">
+            <input
+              id="renewalSearchInput"
+              type="search"
+              placeholder="Müşteri veya poliçe no ara..."
+            />
+
+            <select id="renewalProductFilter">
+              <option value="all">Tüm Ürünler</option>
+
+              <option value="TSS">TSS</option>
+
+              <option value="ÖSS">ÖSS</option>
+
+              <option value="Diğer">Diğer</option>
+            </select>
+
+            <select id="renewalDateFilter">
+              <option value="all">Tüm Yenilemeler</option>
+
+              <option value="7">7 Gün İçinde</option>
+
+              <option value="30">30 Gün İçinde</option>
+
+              <option value="60">60 Gün İçinde</option>
+
+              <option value="expired">Yenilemesi Geçen</option>
+            </select>
+
+            <button
+              id="clearRenewalFilters"
+              class="secondary-button"
+              type="button"
+            >
+              Temizle
+            </button>
+          </div>
+
+          <!-- RENEWAL TABLE -->
+
+          <div class="table-head renewal-table-head">
+            <span>Müşteri</span>
+            <span>Telefon</span>
+            <span>Ürün</span>
+            <span>Poliçe No</span>
+            <span>Yenileme</span>
+            <span>Kalan</span>
+            <span>Aksiyon</span>
+          </div>
+
+          <div id="renewalList" class="renewal-list"></div>
+
+          <div id="renewalEmpty" class="empty-state hidden">
+            Yaklaşan yenileme bulunamadı.
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================
+     COLLECTIONS / TAHSİLAT TAKİP PAGE
+================================================= -->
+
+      <section id="collectionsPage" class="page-section hidden-page">
+        <div class="panel">
+          <!-- =================================================
+             COLLECTION HEADER
+        ================================================== -->
+
+          <div class="panel-header collections-header">
+            <div>
+              <div class="collections-title-row">
+                <h2>Tahsilat Listesi</h2>
+
+                <span id="collectionCount" class="badge-count"> 0 ödeme </span>
+              </div>
+
+              <span>
+                Taksitli poliçelerin tahsilat tarihlerini ve ödeme durumlarını
+                takip edin.
+              </span>
+            </div>
+          </div>
+
+          <!-- =================================================
+             COLLECTION SUMMARY
+        ================================================== -->
+
+          <!-- =====================================================
+     TAHSİLAT TAKİP ÖZETİ
+===================================================== -->
+
+          <div class="collection-summary">
+            <!-- TOPLAM POLİÇE -->
+
+            <div class="collection-summary-card">
+              <div class="collection-summary-icon">📋</div>
+
+              <div class="collection-summary-content">
+                <span class="collection-summary-label"> Toplam Poliçe </span>
+
+                <strong
+                  id="totalCollectionAmount"
+                  class="collection-summary-value"
+                >
+                  0
+                </strong>
+              </div>
+            </div>
+
+            <!-- BUGÜN -->
+
+            <div class="collection-summary-card">
+              <div class="collection-summary-icon">📅</div>
+
+              <div class="collection-summary-content">
+                <span class="collection-summary-label"> Bugün </span>
+
+                <strong
+                  id="monthlyExpectedAmount"
+                  class="collection-summary-value"
+                >
+                  0
+                </strong>
+
+                <small> tahsilat </small>
+              </div>
+            </div>
+
+            <!-- GECİKEN -->
+
+            <div class="collection-summary-card">
+              <div class="collection-summary-icon">⚠️</div>
+
+              <div class="collection-summary-content">
+                <span class="collection-summary-label"> Geciken </span>
+
+                <strong
+                  id="overdueCollectionAmount"
+                  class="collection-summary-value"
+                >
+                  0
+                </strong>
+
+                <small> poliçe </small>
+              </div>
+            </div>
+
+            <!-- BU HAFTA -->
+
+            <div class="collection-summary-card">
+              <div class="collection-summary-icon">🗓️</div>
+
+              <div class="collection-summary-content">
+                <span class="collection-summary-label"> Bu Hafta </span>
+
+                <strong
+                  id="pendingCollectionAmount"
+                  class="collection-summary-value"
+                >
+                  0
+                </strong>
+
+                <small> tahsilat </small>
+              </div>
+            </div>
+          </div>
+
+          <!-- =================================================
+             COLLECTION FILTERS
+        ================================================== -->
+
+          <div class="filters collection-filters">
+            <input
+              id="collectionSearchInput"
+              type="search"
+              placeholder="Müşteri, telefon veya poliçe no ara..."
+            />
+
+            <select id="collectionProductFilter">
+              <option value="all">Tüm Ürünler</option>
+
+              <option value="TSS">TSS</option>
+
+              <option value="ÖSS">ÖSS</option>
+
+              <option value="Kasko">Kasko</option>
+
+              <option value="DASK">DASK</option>
+
+              <option value="Diğer">Diğer</option>
+            </select>
+
+            <select id="collectionStatusFilter">
+              <option value="all">Tüm Durumlar</option>
+
+              <option value="pending">Bekliyor</option>
+
+              <option value="completed">Tamamlandı</option>
+
+              <option value="overdue">Geciken</option>
+            </select>
+
+            <select id="collectionDateFilter">
+              <option value="all">Tüm Tarihler</option>
+
+              <option value="today">Bugün</option>
+
+              <option value="week">Bu Hafta</option>
+
+              <option value="month">Bu Ay</option>
+
+              <option value="nextMonth">Gelecek Ay</option>
+            </select>
+
+            <select id="collectionPaymentMethodFilter">
+              <option value="all">Tüm Ödeme Yöntemleri</option>
+
+              <option value="blocked">Blokeli Çekim</option>
+
+              <option value="unblocked">Blokesiz Çekim</option>
+
+              <option value="transfer">Havale / EFT</option>
+
+              <option value="other">Diğer</option>
+            </select>
+
+            <button
+              id="clearCollectionFilters"
+              class="secondary-button"
+              type="button"
+            >
+              Temizle
+            </button>
+          </div>
+
+          <!-- =================================================
+             COLLECTION TABLE HEADER
+        ================================================== -->
+
+          <div class="table-head collection-table-head">
+            <span>Müşteri</span>
+
+            <span>Telefon</span>
+
+            <span>Ürün</span>
+
+            <span>Poliçe No</span>
+
+            <span>Taksit</span>
+
+            <span>Tahsilat Tarihi</span>
+
+            <span>Tutar</span>
+
+            <span>Durum</span>
+
+            <span>Aksiyon</span>
+          </div>
+
+          <!-- =================================================
+             COLLECTION LIST
+        ================================================== -->
+
+          <div id="collectionList" class="collection-list"></div>
+
+          <!-- =================================================
+             EMPTY STATE
+        ================================================== -->
+
+          <div id="collectionEmpty" class="empty-state hidden">
+            Bu filtrelere uygun tahsilat bulunamadı.
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================
+             INTERACTIONS PAGE
+        ================================================== -->
+
+      <section id="interactionsPage" class="page-section hidden-page">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Görüşme Geçmişi</h2>
+
+              <span id="interactionCount"> 0 görüşme </span>
+            </div>
+          </div>
+
+          <div id="allInteractionList" class="interaction-list"></div>
+
+          <div id="interactionPageEmpty" class="empty-state hidden">
+            Henüz görüşme kaydı bulunmuyor.
+          </div>
+        </div>
+      </section>
     </main>
 
-    <!-- Customer Modal -->
+    <!-- =====================================================
+         CUSTOMER MODAL
+    ====================================================== -->
+
     <div id="customerModal" class="modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <div>
-                    <span class="eyebrow">MÜŞTERİ</span>
-                    <h2 id="modalTitle">Yeni Müşteri</h2>
-                </div>
-                <button id="closeCustomerModal" class="modal-close">×</button>
-            </div>
+      <div class="modal">
+        <div class="modal-header">
+          <div>
+            <span class="eyebrow"> MÜŞTERİ </span>
 
-            <form id="customerForm">
-                <input id="customerId" type="hidden">
+            <h2 id="modalTitle">Yeni Müşteri</h2>
+          </div>
 
-                <div class="form-grid">
-                    <label>Ad Soyad
-                        <input id="customerName" required type="text" placeholder="Ad Soyad">
-                    </label>
-                    <label>Telefon
-                        <input id="customerPhone" type="text" placeholder="05xx xxx xx xx">
-                    </label>
-                    <label>TC Kimlik No
-                        <input id="customerTc" type="text" inputmode="numeric" maxlength="11" placeholder="11 haneli TC">
-                    </label>
-                    <label>Ürün
-                        <select id="customerProduct">
-                            <option value="TSS">TSS</option>
-                            <option value="ÖSS">ÖSS</option>
-                            <option value="Diğer">Diğer</option>
-                        </select>
-                    </label>
-                    <label>Durum
-                        <select id="customerStatus"></select>
-                    </label>
-                    <label>Sonraki Takip
-                        <input id="nextActionDate" type="date">
-                    </label>
-                    <label class="full-width">Not
-                        <textarea id="customerNote" rows="4" placeholder="Müşteriyle ilgili not..."></textarea>
-                    </label>
-                </div>
-
-                <div class="modal-actions">
-                    <button type="button" id="cancelCustomer" class="secondary-button">Vazgeç</button>
-                    <button type="submit" class="primary-button">Kaydet</button>
-                </div>
-            </form>
+          <button id="closeCustomerModal" class="modal-close" type="button">
+            ×
+          </button>
         </div>
+
+        <form id="customerForm">
+          <input id="customerId" type="hidden" />
+
+          <div class="form-grid">
+            <label>
+              Ad Soyad
+
+              <input
+                id="customerName"
+                required
+                type="text"
+                placeholder="Ad Soyad"
+              />
+            </label>
+
+            <label>
+              Telefon
+
+              <input
+                id="customerPhone"
+                type="text"
+                placeholder="05xx xxx xx xx"
+              />
+            </label>
+
+            <label>
+              TC Kimlik No
+
+              <input
+                id="customerTc"
+                type="text"
+                inputmode="numeric"
+                maxlength="11"
+                placeholder="11 haneli TC"
+              />
+            </label>
+
+            <label>
+              Ürün
+
+              <select id="customerProduct">
+                <option value="TSS">TSS</option>
+
+                <option value="ÖSS">ÖSS</option>
+
+                <option value="Diğer">Diğer</option>
+              </select>
+            </label>
+
+            <label>
+              Durum
+
+              <select id="customerStatus"></select>
+            </label>
+
+            <label>
+              Sonraki Takip
+
+              <input id="nextActionDate" type="date" />
+            </label>
+
+            <label class="full-width">
+              Not
+
+              <textarea
+                id="customerNote"
+                rows="4"
+                placeholder="Müşteriyle ilgili not..."
+              ></textarea>
+            </label>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" id="cancelCustomer" class="secondary-button">
+              Vazgeç
+            </button>
+
+            <button type="submit" class="primary-button">Kaydet</button>
+          </div>
+        </form>
+      </div>
     </div>
 
-    <!-- Detail Overlay -->
+    <!-- =====================================================
+         RENEWAL MODAL
+    ====================================================== -->
+
+    <div id="renewalModal" class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <div>
+            <span class="eyebrow"> POLİÇE </span>
+
+            <h2 id="renewalModalTitle">Yeni Poliçe</h2>
+          </div>
+
+          <button id="closeRenewalModal" class="modal-close" type="button">
+            ×
+          </button>
+        </div>
+
+        <form id="renewalForm">
+          <input id="renewalId" type="hidden" />
+
+          <div class="form-grid">
+            <!-- MÜŞTERİ -->
+
+            <label>
+              Müşteri
+
+              <input
+                id="renewalCustomerName"
+                required
+                type="text"
+                placeholder="Ad Soyad"
+              />
+            </label>
+
+            <!-- TELEFON -->
+
+            <label>
+              Telefon
+
+              <input
+                id="renewalCustomerPhone"
+                type="text"
+                placeholder="05xx xxx xx xx"
+              />
+            </label>
+
+            <!-- ÜRÜN -->
+
+            <label>
+              Ürün
+
+              <select id="renewalProduct">
+                <option value="TSS">TSS</option>
+
+                <option value="ÖSS">ÖSS</option>
+
+                <option value="Diğer">Diğer</option>
+              </select>
+            </label>
+
+            <!-- POLİÇE NUMARASI -->
+
+            <label>
+              Poliçe Numarası
+
+              <input
+                id="renewalPolicyNumber"
+                type="text"
+                placeholder="Poliçe numarası"
+              />
+            </label>
+
+            <!-- BAŞLANGIÇ TARİHİ -->
+
+            <label>
+              Poliçe Başlangıç Tarihi
+
+              <input id="renewalStartDate" type="date" />
+            </label>
+
+            <!-- YENİLEME TARİHİ -->
+
+            <label>
+              Yenileme Tarihi
+
+              <input id="renewalDate" required type="date" />
+            </label>
+
+            <!-- DURUM -->
+
+            <label>
+              Durum
+
+              <select id="renewalStatus">
+                <option value="Bekliyor">Bekliyor</option>
+
+                <option value="Aranacak">Aranacak</option>
+
+                <option value="Görüşüldü">Görüşüldü</option>
+
+                <option value="Teklif Verildi">Teklif Verildi</option>
+
+                <option value="Yenilendi">Yenilendi</option>
+
+                <option value="Olumsuz">Olumsuz</option>
+              </select>
+            </label>
+
+            <!-- NOT -->
+
+            <label class="full-width">
+              Not
+
+              <textarea
+                id="renewalNote"
+                rows="4"
+                placeholder="Poliçe ile ilgili not..."
+              ></textarea>
+            </label>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" id="cancelRenewal" class="secondary-button">
+              Vazgeç
+            </button>
+
+            <button type="submit" class="primary-button">Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- =====================================================
+         DETAIL OVERLAY
+    ====================================================== -->
+
     <div id="detailOverlay" class="modal-overlay">
-        <div class="modal detail-modal">
-            <div class="modal-header">
-                <div>
-                    <span class="eyebrow">MÜŞTERİ DETAYI</span>
-                    <h2 id="detailName">Müşteri</h2>
-                </div>
-                <button id="closeDetail" class="modal-close">×</button>
-            </div>
+      <div class="modal detail-modal">
+        <div class="modal-header">
+          <div>
+            <span class="eyebrow"> MÜŞTERİ DETAYI </span>
 
-            <div class="detail-profile">
-                <div id="detailAvatar" class="detail-avatar">?</div>
-                <div>
-                    <h3 id="detailFullName">-</h3>
-                    <p id="detailPhone">-</p>
-                </div>
-            </div>
+            <h2 id="detailName">Müşteri</h2>
+          </div>
 
-           <div class="detail-grid">
-    <div>
-        <span>Ürün</span>
-        <strong id="detailProduct">-</strong>
-    </div>
-
-    <div>
-        <span>Durum</span>
-        <strong id="detailStatus">-</strong>
-    </div>
-
-    <div>
-        <span>Son Görüşme</span>
-        <strong id="detailLastCall">-</strong>
-    </div>
-
-    <div>
-        <span>Sonraki Takip</span>
-        <strong id="detailNextAction">-</strong>
-    </div>
-
-    <div>
-        <span>Kaydedilme Tarihi</span>
-        <strong id="detailCreatedAt">-</strong>
-    </div>
-</div>
-
-            <div class="detail-note">
-                <span>Not</span>
-                <p id="detailNote">-</p>
-            </div>
-
-            <div class="detail-interactions">
-                <div class="section-title">
-                    <h3>Görüşmeler</h3>
-                    <button id="addInteractionButton" class="primary-button small">＋ Görüşme Ekle</button>
-                </div>
-                <div id="interactionList"></div>
-            </div>
+          <button id="closeDetail" class="modal-close" type="button">×</button>
         </div>
+
+        <!-- PROFILE -->
+
+        <div class="detail-profile">
+          <div id="detailAvatar" class="detail-avatar">?</div>
+
+          <div>
+            <h3 id="detailFullName">-</h3>
+
+            <p id="detailPhone">-</p>
+          </div>
+        </div>
+
+        <!-- DETAILS -->
+
+        <div class="detail-grid">
+          <div>
+            <span>Ürün</span>
+            <strong id="detailProduct">-</strong>
+          </div>
+
+          <div>
+            <span>Durum</span>
+            <strong id="detailStatus">-</strong>
+          </div>
+
+          <div>
+            <span>Son Görüşme</span>
+            <strong id="detailLastCall">-</strong>
+          </div>
+
+          <div>
+            <span>Sonraki Takip</span>
+            <strong id="detailNextAction">-</strong>
+          </div>
+
+          <div>
+            <span>Kaydedilme Tarihi</span>
+            <strong id="detailCreatedAt">-</strong>
+          </div>
+        </div>
+
+        <!-- NOTE -->
+
+        <div class="detail-note">
+          <span>Not</span>
+
+          <p id="detailNote">-</p>
+        </div>
+
+        <!-- INTERACTIONS -->
+
+        <div class="detail-interactions">
+          <div class="section-title">
+            <h3>Görüşmeler</h3>
+
+            <button
+              id="addInteractionButton"
+              class="primary-button small"
+              type="button"
+            >
+              ＋ Görüşme Ekle
+            </button>
+          </div>
+
+          <div id="interactionList"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- Interaction Modal -->
+    <!-- =====================================================
+         INTERACTION MODAL
+    ====================================================== -->
+
     <div id="interactionModal" class="modal-overlay">
-        <div class="modal small-modal">
-            <div class="modal-header">
-                <div>
-                    <span class="eyebrow">GÖRÜŞME</span>
-                    <h2>Görüşme Ekle</h2>
-                </div>
-                <button id="closeInteraction" class="modal-close">×</button>
-            </div>
+      <div class="modal small-modal">
+        <div class="modal-header">
+          <div>
+            <span class="eyebrow"> GÖRÜŞME </span>
 
-            <form id="interactionForm">
-                <label>Görüşme Türü
-                    <select id="interactionType">
-                        <option>Arama</option>
-                        <option>WhatsApp</option>
-                        <option>SMS</option>
-                        <option>Yüz Yüze</option>
-                        <option>Diğer</option>
-                    </select>
-                </label>
+            <h2>Görüşme Ekle</h2>
+          </div>
 
-                <label>Not
-                    <textarea id="interactionNote" rows="5" required placeholder="Görüşme notunu yazın..."></textarea>
-                </label>
-
-                <div class="modal-actions">
-                    <button type="button" id="cancelInteraction" class="secondary-button">Vazgeç</button>
-                    <button type="submit" class="primary-button">Kaydet</button>
-                </div>
-            </form>
+          <button id="closeInteraction" class="modal-close" type="button">
+            ×
+          </button>
         </div>
+
+        <form id="interactionForm">
+          <label>
+            Görüşme Türü
+
+            <select id="interactionType">
+              <option>Arama</option>
+
+              <option>WhatsApp</option>
+
+              <option>SMS</option>
+
+              <option>Yüz Yüze</option>
+
+              <option>Diğer</option>
+            </select>
+          </label>
+
+          <label>
+            Not
+
+            <textarea
+              id="interactionNote"
+              rows="5"
+              required
+              placeholder="Görüşme notunu yazın..."
+            ></textarea>
+          </label>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              id="cancelInteraction"
+              class="secondary-button"
+            >
+              Vazgeç
+            </button>
+
+            <button type="submit" class="primary-button">Kaydet</button>
+          </div>
+        </form>
+      </div>
     </div>
 
-    <script src="app.js"></script>
-</body>
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <!-- CORE -->
+    <script src="assets/js/core/config.js"></script>
+    <script src="assets/js/core/state.js"></script>
+    <script src="assets/js/core/storage.js"></script>
+    <script src="assets/js/core/demo.js"></script>
+    <script src="assets/js/core/dates.js"></script>
+    <script src="assets/js/core/helpers.js"></script>
+
+    <!-- UI -->
+    <script src="assets/js/ui/avatar-picker.js"></script>
+    <script src="assets/js/ui/navigation.js"></script>
+
+    <!-- FEATURES -->
+    <script src="assets/js/features/customers/list.js"></script>
+    <script src="assets/js/features/followups.js"></script>
+    <script src="assets/js/features/customers/crud.js"></script>
+    <script src="assets/js/features/interactions.js"></script>
+    <script src="assets/js/features/renewals/list.js"></script>
+    <script src="assets/js/features/renewals/crud.js"></script>
+
+    <script src="assets/js/features/collections/data.js"></script>
+    <script src="assets/js/features/collections/filters-summary.js"></script>
+    <script src="assets/js/features/collections/table.js"></script>
+    <script src="assets/js/features/collections/actions.js"></script>
+    <script src="assets/js/features/collections/modal.js"></script>
+    <script src="assets/js/features/collections/init.js"></script>
+
+    <!-- UI / INTEGRATIONS -->
+    <script src="assets/js/ui/theme-events.js"></script>
+    <script src="assets/js/integrations/supabase-customers.js"></script>
+
+    <!-- BOOTSTRAP -->
+    <script src="assets/js/app.js"></script>
+  </body>
 </html>

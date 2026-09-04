@@ -1,0 +1,518 @@
+/* =========================================================
+   TAHSİLAT TAKİP
+   Yaklaşan Yenilemeler ile aynı kompakt / Excel-benzeri tablo dili.
+========================================================= */
+
+.collections-header {
+    align-items: center;
+}
+
+.collections-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.collections-title-row h2 {
+    margin: 0;
+    line-height: 1.1;
+}
+
+.collections-title-row .badge-count {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+}
+
+.collection-add-button {
+    flex: 0 0 auto;
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 0 15px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 750;
+    box-shadow: 0 5px 15px rgba(25, 169, 116, .18);
+    transition: background .15s ease, transform .12s ease;
+}
+
+.collection-add-button:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.collection-add-button:active {
+    transform: scale(.97);
+}
+
+/* =========================================================
+   ÖZET
+========================================================= */
+
+.collection-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    padding: 16px 18px;
+    background: var(--surface-soft);
+    border-bottom: 1px solid var(--border);
+}
+
+.collection-summary-card {
+    min-width: 0;
+    min-height: 82px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+}
+
+.collection-summary-icon {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: var(--primary-soft);
+    font-size: 16px;
+}
+
+.collection-summary-content {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: end;
+    column-gap: 5px;
+    row-gap: 3px;
+}
+
+.collection-summary-label {
+    grid-column: 1 / -1;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.collection-summary-value {
+    color: var(--text);
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.collection-summary-content small {
+    margin-bottom: 2px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1;
+}
+
+/* =========================================================
+   FİLTRELER
+========================================================= */
+
+.collection-filters {
+    grid-template-columns:
+        minmax(260px, 1.7fr)
+        repeat(4, minmax(135px, 1fr))
+        auto;
+    align-items: center;
+}
+
+.collection-filters .secondary-button {
+    min-width: 92px;
+    min-height: 42px;
+}
+
+/* =========================================================
+   TABLO
+========================================================= */
+
+.collection-table-head,
+.collection-row {
+    display: grid;
+    grid-template-columns:
+        minmax(240px, 1.9fr)
+        minmax(155px, 1.2fr)
+        82px
+        minmax(125px, 1fr)
+        82px
+        128px
+        108px
+        100px
+        116px;
+    gap: 0;
+    align-items: center;
+    min-width: 1260px;
+}
+
+.collection-table-head {
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-soft);
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .65px;
+    text-transform: uppercase;
+}
+
+.collection-table-head > span {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    line-height: 1;
+}
+
+.collection-list {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.collection-row {
+    min-height: 70px;
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    transition: background .15s ease;
+}
+
+.collection-row:last-child {
+    border-bottom: 0;
+}
+
+.collection-row:hover {
+    background: #fbfdfc;
+}
+
+.collection-row > div {
+    min-width: 0;
+}
+
+.collection-customer-cell {
+    min-width: 0;
+    display: flex !important;
+    align-items: center !important;
+    gap: 11px;
+}
+
+.collection-customer-avatar {
+    width: 39px;
+    height: 39px;
+    flex: 0 0 39px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    font-size: 12px;
+    font-weight: 800;
+    transition: filter .15s ease, transform .12s ease;
+}
+
+.collection-customer-avatar:hover {
+    filter: brightness(1.05);
+    transform: scale(1.03);
+}
+
+.collection-customer-copy {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.collection-customer-copy strong {
+    overflow: hidden;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 750;
+    line-height: 1.15;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.collection-customer-copy small {
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.1;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.collection-phone-cell {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+.collection-phone-cell strong {
+    overflow: hidden;
+    max-width: 100%;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.1;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.collection-phone-cell small {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1;
+}
+
+.collection-product-badge,
+.collection-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.collection-product-badge {
+    min-width: 42px;
+    height: 27px;
+    padding: 0 9px;
+    border: 1px solid rgba(25, 169, 116, .18);
+    border-radius: 999px;
+    background: rgba(25, 169, 116, .08);
+    color: #14865c;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.collection-policy-number,
+.collection-installment,
+.collection-date,
+.collection-amount {
+    overflow: hidden;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-variant-numeric: tabular-nums;
+}
+
+.collection-installment {
+    font-weight: 750;
+}
+
+.collection-status {
+    min-width: 78px;
+    height: 27px;
+    padding: 0 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.collection-status.pending {
+    background: #fff7e6;
+    color: #b7791f;
+}
+
+.collection-status.overdue {
+    background: #fff1f0;
+    color: #d92d20;
+}
+
+.collection-status.completed {
+    background: #ecfdf3;
+    color: #16855a;
+}
+
+.collection-actions {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 7px;
+}
+
+.collection-action-button {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1;
+    transition: background .15s ease, color .15s ease, transform .12s ease;
+}
+
+.collection-action-button:hover {
+    background: var(--surface-soft);
+    color: var(--primary-dark);
+}
+
+.collection-paid-button {
+    color: #16885d;
+}
+
+.collection-delete-button:hover {
+    color: var(--danger);
+}
+
+/* =========================================================
+   BOŞ DURUM
+========================================================= */
+
+.collection-empty {
+    min-height: 230px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 30px;
+    color: var(--muted);
+    text-align: center;
+}
+
+.collection-empty-icon {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 4px;
+    border-radius: 50%;
+    background: var(--primary-soft);
+}
+
+.collection-empty strong {
+    color: var(--text);
+    font-size: 14px;
+}
+
+.collection-empty span {
+    max-width: 360px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.collection-modal-overlay.show {
+    display: flex;
+}
+
+.collection-modal {
+    width: min(720px, 100%);
+}
+
+.collection-modal .collection-form-grid {
+    margin-top: 4px;
+}
+
+.collection-modal .modal-actions {
+    margin-top: 22px;
+}
+
+/* =========================================================
+   DARK MODE
+========================================================= */
+
+body.dark .collection-row:hover {
+    background: #1c2630;
+}
+
+body.dark .collection-product-badge {
+    border-color: #275341;
+    background: #173027;
+    color: #54c797;
+}
+
+body.dark .collection-status.pending {
+    background: #3a301d;
+    color: #e7b75b;
+}
+
+body.dark .collection-status.overdue {
+    background: #3a2023;
+    color: #ef8585;
+}
+
+body.dark .collection-status.completed {
+    background: #173b2e;
+    color: #54c797;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1200px) {
+    .collection-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .collection-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .collection-filters > :first-child {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 700px) {
+    .collections-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .collection-add-button {
+        width: 100%;
+    }
+
+    .collection-summary {
+        gap: 9px;
+        padding: 13px;
+    }
+
+    .collection-summary-card {
+        min-height: 74px;
+        padding: 12px;
+    }
+
+    .collection-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .collection-filters > :first-child {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .collection-summary {
+        grid-template-columns: 1fr;
+    }
+}

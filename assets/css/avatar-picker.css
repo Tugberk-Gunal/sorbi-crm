@@ -1,0 +1,98 @@
+/* =========================================================
+   ORTAK AVATAR RENK SEÇİCİ
+========================================================= */
+
+.avatar-color-picker {
+    position: fixed;
+    z-index: 99999;
+    width: 220px;
+    display: none;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, .18);
+}
+
+.avatar-color-picker.show {
+    display: block;
+}
+
+.avatar-color-picker-title {
+    margin-bottom: 12px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.avatar-color-options {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 7px;
+    margin-bottom: 14px;
+}
+
+.avatar-color-option {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 2px solid rgba(255, 255, 255, .9);
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .12);
+    transition: transform .15s ease;
+}
+
+.avatar-color-option:hover {
+    transform: scale(1.18);
+}
+
+.avatar-color-custom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.avatar-color-custom input[type="color"] {
+    width: 34px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+.avatar-color-default {
+    width: 100%;
+    margin-top: 10px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.avatar-color-default:hover {
+    background: var(--surface-soft);
+}
+
+.customer-avatar,
+.followup-avatar,
+.detail-avatar,
+.interaction-page-avatar,
+.renewal-avatar,
+.collection-customer-avatar {
+    cursor: pointer;
+    user-select: none;
+}
+
+body.dark .avatar-color-picker {
+    background: var(--surface);
+    border-color: var(--border);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, .45);
+}

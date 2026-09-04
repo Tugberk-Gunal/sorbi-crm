@@ -1,0 +1,402 @@
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+
+    width: 245px;
+
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 20px 14px;
+
+    z-index: 50;
+}
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.brand {
+    width: 100%;
+
+    /* Tema değişirken farklı oranlı logo dosyaları menüyü oynatmasın. */
+    height: 119px;
+    min-height: 119px;
+    flex: 0 0 119px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 12px 10px 24px;
+
+}
+
+.brand-logo {
+    display: block;
+
+    width: 155px;
+    max-width: 100%;
+    height: auto;
+
+    object-fit: contain;
+}
+
+/*
+   Eski logo sistemi kullanılıyorsa bile
+   layout'u bozmasını engeller.
+*/
+
+.brand-mark {
+    display: none;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+/* =========================================================
+   SIDEBAR MENU
+========================================================= */
+
+.menu {
+    width: 100%;
+
+    display: grid;
+    gap: 7px;
+}
+
+.menu-link,
+.sidebar-button {
+    width: 100%;
+
+    border: 0;
+    background: transparent;
+
+    color: var(--muted);
+
+    border-radius: 12px;
+
+    padding: 12px 13px;
+
+    text-align: left;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    transition:
+        background .18s ease,
+        color .18s ease,
+        transform .12s ease;
+}
+
+.menu-link:hover,
+.sidebar-button:hover {
+    background: var(--surface-soft);
+    color: var(--text);
+}
+
+.menu-link.active {
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    font-weight: 700;
+}
+
+.menu-link:active,
+.sidebar-button:active {
+    transform: scale(.98);
+}
+
+/* =========================================================
+   SIDEBAR ALT
+========================================================= */
+
+.sidebar-bottom {
+    margin-top: auto;
+
+    display: grid;
+    gap: 7px;
+
+    padding-top: 20px;
+}
+
+.sidebar-button {
+    justify-content: flex-start;
+}
+
+.logout-button {
+    color: var(--danger);
+}
+
+.logout-button:hover {
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.main-content {
+    margin-left: 245px;
+
+    min-height: 100vh;
+
+    padding: 32px;
+}
+
+/* =========================================================
+   TOPBAR
+========================================================= */
+
+.topbar {
+    width: 100%;
+    max-width: 1500px;
+
+    margin: 0 auto 26px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 24px;
+}
+
+.topbar > div {
+    min-width: 0;
+}
+
+.eyebrow {
+    color: var(--primary-dark);
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 1.7px;
+    text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+    margin-top: 0;
+}
+
+.topbar h1 {
+    margin: 0 0 6px;
+
+    font-size: clamp(24px, 2.5vw, 30px);
+
+    letter-spacing: -.6px;
+
+    font-weight: 800;
+}
+
+.topbar p {
+    margin: 0;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 8px;
+
+    font-weight: 500;
+}
+
+.topbar p .time-highlight {
+    color: var(--text);
+
+    font-weight: 700;
+
+    background: var(--surface);
+
+    padding: 2px 8px;
+
+    border-radius: 6px;
+
+    border: 1px solid var(--border);
+
+    box-shadow:
+        0 2px 4px rgba(24, 34, 48, .02);
+}
+
+.topbar p .badge-count {
+    color: var(--primary-dark);
+
+    background: var(--primary-soft);
+
+    padding: 2px 8px;
+
+    border-radius: 20px;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.primary-button,
+.secondary-button {
+    border-radius: 10px;
+
+    padding: 11px 15px;
+
+    border: 1px solid transparent;
+
+    font-weight: 700;
+
+    transition:
+        background .18s ease,
+        border-color .18s ease,
+        transform .12s ease,
+        opacity .12s ease;
+}
+
+.primary-button {
+    background: var(--primary);
+    color: #fff;
+
+    box-shadow:
+        0 5px 15px rgba(25, 169, 116, .2);
+}
+
+.primary-button:hover {
+    background: var(--primary-dark);
+
+    transform: translateY(-1px);
+}
+
+.primary-button:active {
+    transform: scale(.96);
+    opacity: .85;
+}
+
+.primary-button.small {
+    padding: 8px 11px;
+    font-size: 12px;
+}
+
+.secondary-button {
+    background: var(--surface);
+    color: var(--text);
+
+    border-color: var(--border);
+}
+
+.secondary-button:hover {
+    border-color: #cfd7e2;
+    background: var(--surface-soft);
+}
+
+.secondary-button:active {
+    transform: scale(.96);
+    opacity: .85;
+}
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+.summary-grid {
+    width: 100%;
+    max-width: 1500px;
+
+    margin: 0 auto 22px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, minmax(0, 1fr));
+
+    gap: 14px;
+}
+
+.summary-card {
+    min-width: 0;
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    padding: 18px;
+
+    box-shadow: var(--shadow);
+}
+
+.summary-card span {
+    display: block;
+
+    color: var(--muted);
+
+    font-size: 12px;
+
+    margin-bottom: 9px;
+}
+
+.summary-card strong {
+    font-size: 25px;
+    line-height: 1;
+}
+
+/* =========================================================
+   PANEL
+========================================================= */
+
+.panel {
+    width: 100%;
+    max-width: 1500px;
+
+    margin: 0 auto;
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+
+    overflow: hidden;
+}
+
+.panel-header {
+    padding: 20px 22px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.panel-header h2 {
+    margin: 0 0 4px;
+
+    font-size: 18px;
+}
+
+.panel-header span {
+    color: var(--muted);
+    font-size: 12px;
+}

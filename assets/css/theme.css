@@ -1,0 +1,89 @@
+/* =========================================================
+   DARK MODE
+========================================================= */
+
+body.dark {
+    --bg: #11161c;
+    --surface: #182028;
+    --surface-soft: #202a34;
+    --border: #2c3743;
+
+    --text: #edf3f7;
+    --muted: #9ba9b7;
+
+    --primary-soft: #173b2e;
+
+    --danger-soft: #3a2023;
+
+    --warning-soft: #3a301d;
+
+    --shadow:
+        0 12px 35px rgba(0, 0, 0, .2);
+}
+
+body.dark .customer-row:hover {
+    background: #1c2630;
+}
+
+body.dark .followup-card.followup-overdue {
+    background: #21191a;
+}
+
+body.dark .table-head,
+body.dark .filters {
+    background: var(--surface-soft);
+}
+
+body.dark .secondary-button:hover,
+body.dark .row-action:hover {
+    background: #26323d;
+}
+
+body.dark .followup-filter:hover {
+    background: #28343f;
+}
+
+body.dark .modal-close:hover {
+    background: #26323d;
+}
+
+body.dark .followup-edit-button {
+    background: #26323d;
+}
+
+/* =========================================================
+   DARK MODE - SORBİ LOGO
+========================================================= */
+body.dark .brand-logo {
+    filter:
+        brightness(1.8)
+        contrast(0.8)
+        drop-shadow(0 0 12px rgba(255, 255, 255, 0.12));
+}
+
+
+/* =========================================================
+   LOGO - LIGHT / DARK MODE
+========================================================= */
+
+.brand-logo-dark {
+    display: none;
+}
+
+.brand-logo-light {
+    display: block;
+}
+
+body.dark .brand-logo-light {
+    display: none;
+}
+
+body.dark .brand-logo-dark {
+    display: block;
+    width: 200px !important;
+    height: auto;
+
+    /* Bu PNG'nin sol ve üst şeffaf payı light logodan daha büyük. */
+    transform: translateX(-22px);
+
+}

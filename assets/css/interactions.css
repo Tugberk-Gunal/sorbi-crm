@@ -1,0 +1,403 @@
+/* =========================================================
+   INTERACTIONS PAGE
+========================================================= */
+
+.interaction-list {
+    padding: 14px;
+
+    display: grid;
+
+    gap: 10px;
+}
+
+.interaction-page-item {
+    display: grid;
+
+    grid-template-columns:
+        42px
+        minmax(0, 1fr)
+        auto;
+
+    gap: 13px;
+
+    align-items: center;
+
+    padding: 15px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 13px;
+
+    background: var(--surface);
+}
+
+.interaction-page-item:hover {
+    background: var(--surface-soft);
+}
+
+.interaction-page-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.interaction-delete-button,
+.interaction-inline-delete {
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 750;
+    transition:
+        color .15s ease,
+        background .15s ease,
+        border-color .15s ease,
+        transform .12s ease;
+}
+
+.interaction-delete-button {
+    min-height: 31px;
+    padding: 6px 9px;
+}
+
+.interaction-delete-button:hover,
+.interaction-inline-delete:hover {
+    border-color: rgba(224, 82, 82, .22);
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+.interaction-delete-button:active,
+.interaction-inline-delete:active {
+    transform: scale(.95);
+}
+
+.interaction-page-avatar {
+    width: 40px;
+    height: 40px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    background: var(--primary-soft);
+
+    color: var(--primary-dark);
+
+    font-weight: 800;
+
+    font-size: 11px;
+}
+
+.interaction-page-content {
+    min-width: 0;
+}
+
+.interaction-page-top {
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 15px;
+}
+
+.interaction-page-top strong {
+    font-size: 13px;
+}
+
+.interaction-page-top span,
+.interaction-page-meta {
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+.interaction-page-meta {
+    margin-top: 5px;
+}
+
+.interaction-page-note {
+    margin-top: 8px;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+    overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   INTERACTION LOG
+========================================================= */
+
+#allInteractionList {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+    padding: 24px;
+}
+
+.interaction-log-card {
+    display: flex;
+
+    gap: 20px;
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    border-radius: 12px;
+
+    padding: 16px;
+
+    box-shadow: var(--shadow);
+
+    align-items: flex-start;
+
+    transition:
+        transform .2s ease;
+}
+
+.interaction-log-card:hover {
+    transform: translateX(3px);
+}
+
+.interaction-log-meta {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    min-width: 95px;
+
+    flex-shrink: 0;
+
+    gap: 3px;
+
+    border-right: 2px solid var(--surface-soft);
+
+    padding-right: 15px;
+}
+
+.interaction-log-time {
+    font-size: 16px;
+
+    font-weight: 800;
+
+    color: var(--text);
+
+    font-variant-numeric: tabular-nums;
+}
+
+.interaction-log-date {
+    font-size: 11px;
+
+    color: var(--muted);
+
+    font-weight: 500;
+}
+
+.interaction-log-type-badge {
+    margin-top: 5px;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: .5px;
+
+    text-transform: uppercase;
+
+    background: var(--primary-soft);
+
+    color: var(--primary-dark);
+
+    padding: 2px 6px;
+
+    border-radius: 6px;
+}
+
+.interaction-log-content {
+    flex-grow: 1;
+
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.interaction-log-customer {
+    font-size: 13px;
+
+    font-weight: 750;
+
+    color: var(--text);
+}
+
+.interaction-log-text {
+    margin: 0;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+
+    color: var(--muted);
+
+    overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   DETAIL INTERACTIONS
+========================================================= */
+
+.detail-interactions {
+    margin-top: 18px;
+}
+
+.section-title {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 10px;
+}
+
+.section-title h3 {
+    margin: 0;
+
+    font-size: 15px;
+}
+
+.interaction {
+    padding: 12px 0;
+
+    border-top: 1px solid var(--border);
+}
+
+.interaction-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.interaction-inline-delete {
+    padding: 4px 7px;
+}
+
+.interaction-date {
+    color: var(--muted);
+
+    font-size: 10px;
+}
+
+.interaction-type {
+    display: inline-block;
+
+    margin: 5px 0;
+
+    padding: 4px 7px;
+
+    background: var(--primary-soft);
+
+    color: var(--primary-dark);
+
+    border-radius: 6px;
+
+    font-size: 10px;
+
+    font-weight: 800;
+}
+
+.interaction-note {
+    font-size: 12px;
+
+    line-height: 1.5;
+
+    overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   DELETE CONFIRMATION
+========================================================= */
+
+.interaction-delete-modal {
+    width: min(460px, 100%);
+    text-align: center;
+}
+
+.interaction-delete-icon {
+    width: 48px;
+    height: 48px;
+    margin: 2px auto 15px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--danger-soft);
+    color: var(--danger);
+    font-size: 22px;
+    font-weight: 850;
+}
+
+.interaction-delete-copy h2 {
+    margin: 7px 0 8px;
+    font-size: 21px;
+}
+
+.interaction-delete-copy p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.interaction-delete-preview {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: var(--surface-soft);
+    color: var(--text);
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: left;
+    overflow-wrap: anywhere;
+}
+
+.interaction-delete-actions {
+    justify-content: center;
+}
+
+.interaction-confirm-delete {
+    border: 0;
+    border-radius: 10px;
+    padding: 11px 15px;
+    background: var(--danger);
+    color: #fff;
+    font-weight: 750;
+    box-shadow: 0 8px 20px rgba(224, 82, 82, .2);
+    transition:
+        filter .15s ease,
+        transform .12s ease;
+}
+
+.interaction-confirm-delete:hover {
+    filter: brightness(.94);
+}
+
+.interaction-confirm-delete:active {
+    transform: scale(.97);
+}
