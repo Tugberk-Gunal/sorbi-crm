@@ -22,6 +22,8 @@ Bu paket mevcut SORBİ CRM görünümünü koruyarak kodu modüllere ayırır ve
    - Poliçe no ve diğer bilgiler sonradan Yaklaşan Yenilemeler ekranından düzenlenebilir.
    - Aynı müşteri için ikinci kez otomatik yenileme kaydı oluşturulmaz.
 
+ https://tugberk-gunal.github.io/sorbi-crm/
+
 ## Dosya yapısı
 
 ```text
