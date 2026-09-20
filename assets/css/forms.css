@@ -202,6 +202,132 @@ textarea {
     gap: 14px;
 }
 
+/* Müşteri formu: uzun alanları okunabilir bölümlere ayırır. */
+#customerModal .customer-modal {
+    width: min(760px, 100%);
+    background: #eef3f5;
+}
+
+#customerModal .modal-header {
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #d9e3e8;
+}
+
+#customerModal .modal-header h2 {
+    margin: 0;
+}
+
+#customerModal .customer-form-section {
+    margin-top: 12px;
+    padding: 17px;
+    border: 1px solid #d9e3e8;
+    border-radius: 14px;
+    background: #f8fbfc;
+    box-shadow: 0 3px 12px rgba(22, 49, 64, .04);
+}
+
+#customerModal .customer-form-section-heading {
+    display: flex;
+    align-items: center;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+#customerModal .customer-form-section-heading h3 {
+    margin: 0;
+    color: var(--text);
+    font-size: 15px;
+}
+
+#customerModal label {
+    color: #405365;
+    font-size: 13px;
+}
+
+#customerModal input:not([type="hidden"]),
+#customerModal select,
+#customerModal textarea {
+    min-height: 42px;
+    border-color: #cbd8df;
+    background: #ffffff;
+    color: var(--text);
+    font-size: 14px;
+}
+
+#customerModal textarea {
+    min-height: 90px;
+}
+
+#customerModal .insured-person-row,
+#customerModal .additional-reminder-row {
+    background: #edf4f6;
+    border-color: #cbdde4;
+}
+
+#customerModal input:focus,
+#customerModal select:focus,
+#customerModal textarea:focus {
+    background: var(--surface);
+    border-color: var(--primary);
+}
+
+#customerModal .modal-actions {
+    position: sticky;
+    bottom: -22px;
+    z-index: 1;
+    margin: 14px -22px -22px;
+    padding: 14px 22px;
+    border-top: 1px solid #d9e3e8;
+    border-radius: 0 0 18px 18px;
+    background: #eef3f5;
+}
+
+body.dark #customerModal .customer-modal,
+body.dark #customerModal .modal-actions {
+    background: #141d25;
+}
+
+body.dark #customerModal .modal-header {
+    border-color: var(--border);
+}
+
+body.dark #customerModal .customer-form-section {
+    background: var(--surface);
+    border-color: var(--border);
+    box-shadow: none;
+}
+
+body.dark #customerModal .insured-person-row,
+body.dark #customerModal .additional-reminder-row {
+    background: var(--surface-soft);
+    border-color: var(--border);
+}
+
+body.dark #customerModal label {
+    color: #c4d0da;
+}
+
+body.dark #customerModal input:not([type="hidden"]),
+body.dark #customerModal select,
+body.dark #customerModal textarea {
+    border-color: #465667;
+    background: var(--surface-soft);
+}
+
+body.dark #customerModal input:focus,
+body.dark #customerModal select:focus,
+body.dark #customerModal textarea:focus {
+    background: var(--surface);
+    border-color: var(--primary);
+}
+
+body.dark #customerModal .modal-actions {
+    border-color: var(--border);
+}
+
 label {
     display: grid;
 
@@ -216,6 +342,98 @@ label {
 
 .full-width {
     grid-column: 1 / -1;
+}
+
+.customer-tc-heading,
+.insured-person-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.customer-tc-field {
+    display: grid;
+    gap: 7px;
+}
+
+.add-insured-button,
+.remove-insured-button {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--primary);
+    cursor: pointer;
+    font: inherit;
+}
+
+.add-insured-button {
+    width: 27px;
+    height: 27px;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.remove-insured-button {
+    padding: 5px 9px;
+    font-size: 11px;
+}
+
+.add-insured-button:hover,
+.remove-insured-button:hover {
+    border-color: var(--primary);
+    background: var(--surface-soft);
+}
+
+.insured-persons-fields {
+    display: grid;
+    gap: 10px;
+}
+
+.insured-persons-fields:empty {
+    display: none;
+}
+
+.insured-person-row {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    background: var(--surface-soft);
+}
+
+.insured-person-heading {
+    margin-bottom: 10px;
+}
+
+.insured-person-title {
+    color: var(--text);
+    font-size: 12px;
+}
+
+.insured-person-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.insured-person-grid .insured-person-name-label {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 600px) {
+    .insured-person-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #customerModal .customer-form-section {
+        padding: 13px;
+    }
+
+    #customerModal .modal-actions {
+        bottom: -17px;
+        margin: 14px -17px -17px;
+        padding: 12px 17px;
+    }
 }
 
 .modal-actions {

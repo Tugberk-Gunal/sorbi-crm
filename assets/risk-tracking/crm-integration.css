@@ -1,0 +1,521 @@
+/* Risk Takip, CRM içinde tek liste ve isteğe bağlı detay penceresi kullanır. */
+:root {
+  --ink: #182230;
+  --muted: #758195;
+  --line: #e5eaf1;
+  --teal: #19a974;
+  --bg: #ffffff;
+  --soft: #f5f8f7;
+}
+
+html, body { min-height: 0; }
+body { background: var(--bg); color: var(--ink); }
+.app-shell, .app-shell[style] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(360px, 1fr);
+  min-height: 780px;
+}
+
+.risk-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+.risk-toolbar-copy h1 { margin: 0; font-size: 24px; letter-spacing: -.025em; }
+.risk-toolbar-copy > p:last-child { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+.risk-toolbar #newCustomerButton {
+  flex: none;
+  margin: 0;
+  border-radius: 10px;
+  background: #7053bf;
+  box-shadow: 0 5px 15px rgba(112, 83, 191, .22);
+  white-space: nowrap;
+  transition: background-color .18s ease, box-shadow .18s ease, transform .12s ease;
+}
+.risk-toolbar #newCustomerButton:hover {
+  background: #5e40aa;
+  box-shadow: 0 8px 20px rgba(94, 64, 170, .3);
+  transform: translateY(-2px);
+}
+.risk-toolbar #newCustomerButton:active {
+  background: #4d328e;
+  box-shadow: 0 3px 8px rgba(77, 50, 142, .25);
+  transform: translateY(0) scale(.97);
+}
+.risk-toolbar #newCustomerButton:focus-visible { outline: 3px solid #b9a6ee; outline-offset: 3px; }
+
+.risk-overview {
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+.risk-overview .filter {
+  --filter-accent: #53657a;
+  --filter-soft: #f1f4f7;
+  --filter-border: #becbd6;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 72px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+  color: var(--ink);
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(24, 34, 48, .04);
+  transition: border-color .16s ease, background-color .16s ease,
+    box-shadow .16s ease, transform .16s ease;
+}
+.risk-overview .risk-filter-review { --filter-accent: #95620a; --filter-soft: #fff8e8; --filter-border: #e9cb8f; }
+.risk-overview .risk-filter-discount { --filter-accent: #7149ad; --filter-soft: #f5efff; --filter-border: #d8c2f2; }
+.risk-overview .risk-filter-approved { --filter-accent: #22794f; --filter-soft: #edf9f1; --filter-border: #b9dfc9; }
+.risk-overview .filter:hover {
+  border-color: var(--filter-border);
+  transform: translateY(-2px);
+}
+.risk-overview .filter.active {
+  border-color: var(--filter-border);
+  background: var(--filter-soft);
+  box-shadow: inset 0 0 0 1px var(--filter-border), 0 5px 14px rgba(24, 34, 48, .06);
+}
+.risk-overview .filter.active::before {
+  position: absolute;
+  top: 15px;
+  bottom: 15px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--filter-accent);
+  content: "";
+}
+.risk-overview .filter span { min-width: 0; font-size: 14px; font-weight: 750; line-height: 1.3; }
+.risk-overview .filter b {
+  display: grid;
+  flex: none;
+  place-items: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 8px;
+  border-radius: 11px;
+  background: var(--filter-soft);
+  color: var(--filter-accent);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+}
+.risk-overview .filter.active b { background: var(--bg); }
+
+.customer-panel {
+  grid-column: 1;
+  grid-row: 3;
+  min-width: 0;
+  border: 0;
+  background: var(--bg);
+}
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 24px 12px;
+}
+.search { position: relative; width: min(360px, 100%); flex: none; margin: 0; }
+.search input { padding-right: 26px; }
+.search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 50%;
+  background: #e2e7e9;
+  color: #5c6670;
+  cursor: pointer;
+}
+.search-clear[hidden], .offer-date[hidden] { display: none !important; }
+
+.customer-list {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  max-height: none;
+  padding: 14px 24px 24px;
+}
+.customer-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(145px, 1.3fr) minmax(110px, 1fr) minmax(190px, 1.2fr) minmax(150px, 1.25fr) minmax(125px, .9fr) 18px;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-height: 86px;
+  margin: 0;
+  padding: 13px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+  transition: border-color .15s ease, background-color .15s ease;
+}
+.customer-card:hover { border-color: #a9cbb9; background: var(--soft); }
+.customer-card:focus-within, .risk-overview .filter:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+.risk-card-open {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+.risk-card-open:focus-visible { outline: 0; }
+.risk-card-customer { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.risk-card-customer strong { min-width: 0; overflow: hidden; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+.risk-card-field { min-width: 0; }
+.risk-card-status-field { padding-left: 32px; }
+.risk-card-label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: .035em; text-transform: uppercase; }
+.risk-card-company { display: block; overflow: hidden; font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.risk-card-date { display: block; color: var(--ink); font-size: 14px; font-weight: 750; line-height: 1.4; }
+.risk-list-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 6px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+.risk-list-status::before { flex: none; width: 6px; height: 6px; border-radius: 50%; background: currentColor; content: ""; }
+.risk-status-review { background: #fff0cd; color: #805600; }
+.risk-status-discount { background: #efe7ff; color: #6b43a7; }
+.risk-status-approved { background: #dff5e8; color: #176844; }
+.risk-status-invalid { background: #ffebea; color: #ad3e3b; }
+.risk-status-draft { background: #edf0f3; color: #54616e; }
+.risk-card-offer-value { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.risk-card-offer-value strong { overflow: hidden; font-size: 12px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+.risk-copy-button {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--bg);
+  color: #167d5c;
+  cursor: pointer;
+}
+.risk-copy-button:hover:not(:disabled) { border-color: #9bcbb1; background: #eaf7ef; }
+.risk-copy-button:disabled { opacity: .4; cursor: not-allowed; }
+.risk-card-arrow { color: var(--muted); font-size: 26px; line-height: 1; }
+
+#detailDialog {
+  width: min(720px, calc(100% - 28px));
+  max-height: min(88vh, 850px);
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--bg);
+  color: var(--ink);
+  overflow-y: auto;
+}
+#detailDialog::backdrop { background: rgba(13, 28, 36, .46); }
+#detailContent { padding: 26px; }
+.detail-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding-bottom: 18px; }
+.detail-header h2 { margin: 0; font-size: 24px; }
+.detail-header #customerMeta { margin: 2px 0 0; color: var(--muted); }
+.header-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+.header-actions .secondary-button { padding: 8px 12px; }
+.header-actions .close { width: 35px; height: 35px; }
+.icon-button { background: #f8eeee; }
+.notes-section { margin-top: 22px; }
+.section-title { padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.section-title h3 { font-size: 17px; }
+.secondary-button { color: #156a63; }
+.notes-list { display: grid; gap: 10px; max-height: 265px; overflow-y: auto; }
+.note-card { background: var(--bg); }
+
+.risk-detail-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+.risk-detail-fields > div, .risk-detail-fields > label {
+  min-width: 0;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--bg);
+}
+.risk-detail-fields span, .risk-offer-number span {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+}
+.risk-detail-fields strong { display: block; margin-top: 7px; font-size: 12px; line-height: 1.4; }
+.risk-status-field select {
+  display: block;
+  width: 100%;
+  min-height: 32px;
+  margin-top: 4px;
+  padding: 4px 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.risk-status-field select.risk-status-review { background: #fff0cd; color: #805600; }
+.risk-status-field select.risk-status-discount { background: #efe7ff; color: #6b43a7; }
+.risk-status-field select.risk-status-approved { background: #dff5e8; color: #176844; }
+.risk-status-field select.risk-status-invalid { background: #ffebea; color: #ad3e3b; }
+.risk-status-field select.risk-status-draft { background: #edf0f3; color: #54616e; }
+.risk-offer-number {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--soft);
+}
+.risk-offer-number strong { display: block; margin-top: 4px; font-size: 21px; letter-spacing: .015em; overflow-wrap: anywhere; user-select: all; }
+.risk-offer-number .secondary-button { flex: none; border: 1px solid var(--line); background: var(--bg); }
+.risk-offer-number .secondary-button:disabled { opacity: .5; cursor: not-allowed; }
+.offer-date { margin: 10px 0 0; color: var(--muted); font-size: 11px; }
+dialog { max-height: min(90vh, 740px); overflow-y: auto; }
+#confirmDialog { padding: 24px 24px 22px; }
+.confirm-message { margin: 14px 0 0; color: var(--ink); line-height: 1.55; }
+#confirmDialog .modal-actions { margin-top: 20px; }
+.primary-button.danger { background: #c0524f; }
+.toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(16px); padding: 11px 18px; border-radius: 9px; background: #17222d; color: #fff; opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; z-index: 50; }
+.toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+.risk-storage-failure {
+  position: fixed;
+  z-index: 1000;
+  top: 12px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(660px, calc(100% - 24px));
+  padding: 12px;
+  border: 1px solid #d99018;
+  border-radius: 9px;
+  background: #fff6e4;
+  color: #563600;
+  box-shadow: 0 12px 32px #1822302e;
+  transform: translateX(-50%);
+}
+.risk-storage-failure button { flex: none; padding: 7px 10px; border: 0; border-radius: 6px; background: #563600; color: #fff; cursor: pointer; }
+.risk-storage-failure button:disabled { opacity: .5; cursor: not-allowed; }
+#newCustomerName[readonly] { background: var(--soft); color: var(--ink); }
+
+body.dark {
+  --ink: #e8f0f2;
+  --muted: #a3b1ba;
+  --line: #34444d;
+  --bg: #172329;
+  --soft: #1d3030;
+}
+body.dark .customer-card:hover { border-color: #487966; }
+body.dark .risk-overview .filter { --filter-accent: #b8c8d6; --filter-soft: #25353e; --filter-border: #526675; }
+body.dark .risk-overview .risk-filter-review { --filter-accent: #f0c37b; --filter-soft: #383124; --filter-border: #745c38; }
+body.dark .risk-overview .risk-filter-discount { --filter-accent: #d4b7f7; --filter-soft: #332b42; --filter-border: #6b5584; }
+body.dark .risk-overview .risk-filter-approved { --filter-accent: #9ee0b7; --filter-soft: #243c31; --filter-border: #4c795f; }
+body.dark .search, body.dark .search-clear { background: #26373e; color: var(--ink); border-color: var(--line); }
+body.dark .search input, body.dark .customer-card small, body.dark .detail-header #customerMeta { color: var(--muted); }
+body.dark .avatar, body.dark .secondary-button { background: #28533e; color: #a0e7be; }
+body.dark .note-card, body.dark .no-notes { border-color: var(--line); background: #1c2b32; }
+body.dark dialog { background: var(--bg); color: var(--ink); }
+body.dark dialog input, body.dark dialog select, body.dark dialog textarea { border-color: var(--line); background: var(--bg); color: var(--ink); }
+body.dark .risk-status-review, body.dark .risk-status-field select.risk-status-review { background: #493d24; color: #f3cb78; }
+body.dark .risk-status-discount, body.dark .risk-status-field select.risk-status-discount { background: #3c3150; color: #d6b9ff; }
+body.dark .risk-status-approved, body.dark .risk-status-field select.risk-status-approved { background: #234737; color: #9ee3bb; }
+body.dark .risk-status-invalid, body.dark .risk-status-field select.risk-status-invalid { background: #4b2c2d; color: #f4aaa7; }
+body.dark .risk-status-draft, body.dark .risk-status-field select.risk-status-draft { background: #303e47; color: #c3ced4; }
+body.dark .risk-copy-button { background: #26373e; color: #a0e7be; }
+body.dark .risk-copy-button:hover:not(:disabled) { background: #28533e; }
+body.dark #customerOfferDate.offer-date {
+  border: 1px solid var(--line);
+  background: #24343c;
+  color: #c0cdd3;
+}
+body.dark #customerOfferDate.offer-date::before { color: #8bcbb4; }
+
+@media (max-width: 1100px) {
+  .customer-card { grid-template-columns: minmax(160px, 1.3fr) minmax(110px, 1fr) minmax(185px, 1fr) 18px; row-gap: 10px; }
+  .risk-card-customer { grid-column: 1; grid-row: 1; }
+  .risk-card-company-field { grid-column: 2; grid-row: 1; }
+  .risk-card-status-field { grid-column: 3; grid-row: 1; padding-left: 24px; }
+  .risk-card-date-field { grid-column: 1 / 3; grid-row: 2; }
+  .risk-card-offer-field { grid-column: 3; grid-row: 2; }
+  .risk-card-arrow { grid-column: 4; grid-row: 1 / 3; }
+}
+
+@media (max-width: 700px) {
+  .app-shell, .app-shell[style] { display: block; min-height: 0; }
+  .risk-toolbar { align-items: stretch; flex-direction: column; padding: 18px; }
+  .risk-toolbar .primary-button { width: 100%; }
+  .risk-overview { display: flex; overflow-x: auto; gap: 8px; padding: 12px 16px; }
+  .risk-overview .filter { flex: 0 0 174px; }
+  .panel-header { padding: 16px 16px 12px; }
+  .search { width: min(360px, 100%); }
+  .customer-list { padding: 12px 16px 20px; }
+  .customer-card { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .risk-card-customer { grid-column: 1 / -1; grid-row: 1; }
+  .risk-card-company-field { grid-column: 1; grid-row: 2; }
+  .risk-card-status-field { grid-column: 2; grid-row: 2; padding-left: 12px; }
+  .risk-card-date-field { grid-column: 1; grid-row: 3; }
+  .risk-card-offer-field { grid-column: 2; grid-row: 3; }
+  .risk-card-arrow { display: none; }
+  #detailContent { padding: 20px; }
+  .risk-detail-fields { grid-template-columns: 1fr 1fr; }
+  .risk-status-field { grid-column: 1 / -1; }
+  .risk-offer-number { align-items: stretch; flex-direction: column; }
+  .risk-offer-number .secondary-button { align-self: flex-start; }
+}
+@media (max-width: 440px) {
+  .risk-list-status { font-size: 10px; }
+  .detail-header { flex-wrap: wrap; }
+  .header-actions { justify-content: flex-end; width: 100%; }
+  .risk-detail-fields { grid-template-columns: 1fr; }
+  .risk-status-field { grid-column: auto; }
+}
+
+/* Risk kaydı: geniş, okunaklı ve küçük ekranda tek sütunlu form. */
+#customerDialog {
+  width: min(720px, calc(100% - 32px));
+  max-height: min(90vh, 800px);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+}
+#customerDialog form { padding: 28px 32px 0; }
+#customerDialog .modal-header {
+  align-items: center;
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+#customerDialog .modal-header h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 23px;
+  line-height: 1.25;
+  letter-spacing: -.02em;
+}
+#customerDialog .close { width: 40px; height: 40px; border-radius: 10px; }
+.risk-form-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 20px;
+}
+.risk-form-fields .risk-form-full { grid-column: 1 / -1; }
+#customerDialog .risk-form-fields label {
+  min-width: 0;
+  margin: 0;
+  color: #34414a;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.risk-field-optional,
+.risk-field-required {
+  margin-left: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.risk-field-required { color: #9b513d; }
+#customerDialog .risk-form-fields input,
+#customerDialog .risk-form-fields select {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 8px;
+  padding: 11px 13px;
+  border: 1px solid #bdcbd1;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 15px;
+}
+#customerDialog .risk-form-fields input::placeholder { color: #78858e; font-size: 14px; }
+#customerDialog .risk-form-fields input:focus,
+#customerDialog .risk-form-fields select:focus {
+  border-color: #198c69;
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(25, 140, 105, .16);
+}
+.risk-form-dates {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.risk-form-dates h3 { margin: 0 0 16px; color: var(--ink); font-size: 16px; }
+#customerDialog .risk-form-actions {
+  position: sticky;
+  bottom: 0;
+  gap: 12px;
+  margin: 26px -32px 0;
+  padding: 16px 32px;
+  border-top: 1px solid var(--line);
+  background: #fff;
+}
+#customerDialog .risk-form-actions button { min-height: 44px; padding: 10px 18px; font-size: 14px; }
+#customerDialog .risk-form-actions .text-button { border-radius: 9px; }
+#customerDialog .risk-form-actions .text-button:hover { background: #f0f4f5; }
+body.dark #customerDialog .risk-form-fields label { color: var(--ink); }
+body.dark #customerDialog .risk-form-fields input,
+body.dark #customerDialog .risk-form-fields select { border-color: #4b5d65; background: #203139; color: var(--ink); }
+body.dark #customerDialog .risk-form-fields input::placeholder { color: #a3b1ba; }
+body.dark #customerDialog .risk-form-fields input[type="date"] { color-scheme: dark; }
+body.dark #customerDialog .risk-form-actions { background: var(--bg); }
+body.dark #customerDialog .risk-form-actions .text-button { color: var(--ink); }
+body.dark #customerDialog .risk-form-actions .text-button:hover { background: #263b43; }
+body.dark .risk-field-required { color: #f0aa92; }
+@media (prefers-reduced-motion: reduce) {
+  .risk-overview .filter { transition: none; }
+  .risk-overview .filter:hover { transform: none; }
+}
+@media (max-width: 620px) {
+  #customerDialog form { padding: 22px 20px 0; }
+  .risk-form-fields { grid-template-columns: 1fr; gap: 16px; }
+  #customerDialog .risk-form-actions { margin-right: -20px; margin-left: -20px; padding: 14px 20px; }
+}
+@media (max-width: 420px) {
+  #customerDialog .modal-header h2 { font-size: 21px; }
+  #customerDialog .risk-form-actions { flex-wrap: nowrap; }
+  #customerDialog .risk-form-actions button { flex: 1; padding-right: 10px; padding-left: 10px; }
+}

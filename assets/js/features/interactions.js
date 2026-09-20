@@ -3,6 +3,7 @@
 ========================================================= */
 
 let pendingInteractionDelete = null;
+const expandedInteractionCustomers = new Set();
 
 function ensureInteractionDeleteModal() {
     let overlay = $("interactionDeleteModal");
@@ -89,6 +90,16 @@ function deleteInteraction(customerId, interactionId) {
         return;
     }
 
+    const deletedInteraction = customer.interactions.find(
+        interaction => String(interaction.id) === String(interactionId)
+    );
+    const noteFollowsDeletedInteraction = deletedInteraction && (
+        customer.noteSourceInteractionId
+            ? String(customer.noteSourceInteractionId) === String(interactionId)
+            : !Object.hasOwn(customer, "noteSourceInteractionId") &&
+              customer.lastCall === deletedInteraction.createdAt &&
+              customer.note === deletedInteraction.note
+    );
     const previousLength = customer.interactions.length;
     customer.interactions = customer.interactions.filter(
         interaction => String(interaction.id) !== String(interactionId)
@@ -103,7 +114,10 @@ function deleteInteraction(customerId, interactionId) {
     )[0];
 
     customer.lastCall = latestInteraction?.createdAt || null;
-    customer.note = latestInteraction?.note || "";
+    if (noteFollowsDeletedInteraction) {
+        customer.note = latestInteraction?.note || "";
+        customer.noteSourceInteractionId = latestInteraction?.id || null;
+    }
 
     saveLocalData();
     renderAll();
@@ -112,7 +126,7 @@ function deleteInteraction(customerId, interactionId) {
         detailOverlay.classList.contains("show") &&
         String(selectedCustomerId) === String(customer.id)
     ) {
-        $("detailLastCall").textContent = formatDateTime(customer.lastCall);
+        renderLastCall($("detailLastCall"), customer.lastCall);
         $("detailNote").textContent = customer.note || "-";
         renderCustomerInteractions(customer);
     }
@@ -151,8 +165,11 @@ function getAllInteractions() {
                         customerPhone:
                             customer.phone,
 
+                        customerTc:
+                            customer.tc || "",
+
                         product:
-                            customer.product,
+                            getCustomerProducts(customer).join(", "),
 
                         avatarColor:
                             customer.avatarColor ||
@@ -174,21 +191,101 @@ function getAllInteractions() {
     );
 }
 
+function filterInteractions(interactions, { search = "", type = "all", period = "all" } = {}, now = new Date()) {
+    const query = search.trim().toLocaleLowerCase("tr-TR");
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const last7 = new Date(today);
+    last7.setDate(last7.getDate() - 6);
+
+    return interactions.filter(interaction => {
+        if (type !== "all" && interaction.type !== type) return false;
+        if (query && ![
+            interaction.customerName, interaction.customerPhone,
+            interaction.customerTc, interaction.note
+        ].some(value => String(value || "").toLocaleLowerCase("tr-TR").includes(query))) {
+            return false;
+        }
+        if (period === "all") return true;
+        const date = new Date(interaction.createdAt);
+        if (Number.isNaN(date.getTime())) return false;
+        if (period === "today") return date >= today && date < tomorrow;
+        if (period === "last7") return date >= last7 && date < tomorrow;
+        if (period === "thisMonth") return date.getFullYear() === today.getFullYear() &&
+            date.getMonth() === today.getMonth();
+        return true;
+    });
+}
+
+function groupInteractionsByCustomer(interactions, allInteractions = interactions) {
+    const totalCounts = new Map();
+    allInteractions.forEach(interaction => {
+        totalCounts.set(interaction.customerId,
+            (totalCounts.get(interaction.customerId) || 0) + 1);
+    });
+    const groups = new Map();
+    interactions.forEach(interaction => {
+        if (!groups.has(interaction.customerId)) {
+            groups.set(interaction.customerId, {
+                customerId: interaction.customerId,
+                customerName: interaction.customerName,
+                customerPhone: interaction.customerPhone,
+                product: interaction.product,
+                avatarColor: interaction.avatarColor,
+                totalCount: totalCounts.get(interaction.customerId) || 0,
+                interactions: []
+            });
+        }
+        groups.get(interaction.customerId).interactions.push(interaction);
+    });
+    return [...groups.values()];
+}
+
+function populateInteractionTypeFilter(interactions) {
+    const select = $("interactionTypeFilter");
+    if (!select) return;
+    const selected = select.value;
+    const types = [...new Set(interactions.map(item => item.type).filter(Boolean))]
+        .sort((a, b) => a.localeCompare(b, "tr"));
+    select.innerHTML = `<option value="all">Tüm Görüşme Türleri</option>` +
+        types.map(type => `<option value="${escapeHTML(type)}">${escapeHTML(type)}</option>`).join("");
+    select.value = types.includes(selected) ? selected : "all";
+}
+
 function renderAllInteractions() {
     if (!allInteractionList) {
         return;
     }
 
-    const interactions =
-        getAllInteractions();
+    const allInteractions = getAllInteractions();
+    populateInteractionTypeFilter(allInteractions);
+    const filters = {
+        search: $("interactionSearchInput")?.value || "",
+        type: $("interactionTypeFilter")?.value || "all",
+        period: $("interactionDateFilter")?.value || "all"
+    };
+    const interactions = filterInteractions(allInteractions, filters);
+    const groups = groupInteractionsByCustomer(interactions, allInteractions);
+    const filtersActive = Boolean(filters.search.trim()) ||
+        filters.type !== "all" || filters.period !== "all";
+    if ($("clearInteractionFilters")) {
+        $("clearInteractionFilters").hidden = !filtersActive;
+    }
 
+    if (typeof allInteractionList.querySelectorAll === "function") {
+        allInteractionList.querySelectorAll(".interaction-customer-group[open]").forEach(item =>
+            expandedInteractionCustomers.add(item.dataset.customerId));
+    }
     allInteractionList.innerHTML =
         "";
 
     if ($("interactionCount")) {
         $("interactionCount")
             .textContent =
-            `${interactions.length} görüşme`;
+            filtersActive
+                ? `${groups.length} müşteri · ${interactions.length} / ${allInteractions.length} görüşme`
+                : `${groups.length} müşteri · ${allInteractions.length} görüşme`;
     }
 
     if (interactionPageEmpty) {
@@ -197,108 +294,78 @@ function renderAllInteractions() {
             interactions.length !==
                 0
         );
+        interactionPageEmpty.textContent = filtersActive
+            ? "Bu filtrelere uygun müşteri görüşmesi bulunamadı."
+            : "Henüz müşteri görüşmesi bulunmuyor.";
     }
 
-    interactions.forEach(
-        (interaction) => {
+    const visible = getListPage("allInteractionList", [
+        filters.search, filters.type, filters.period
+    ].join("|"), groups);
+    updateListPager("allInteractionList", groups.length, renderAllInteractions);
+
+    visible.forEach(
+        (group) => {
             const item =
                 document.createElement(
-                    "div"
+                    "details"
                 );
 
-            item.className =
-                "interaction-page-item";
+            item.className = "interaction-customer-group";
+            item.dataset.customerId = group.customerId;
+            item.open = expandedInteractionCustomers.has(group.customerId);
 
             const avatarStyle =
                 isValidAvatarColor(
-                    interaction.avatarColor
+                    group.avatarColor
                 )
                     ? `style="background-color:${escapeHTML(
-                          interaction.avatarColor
+                          group.avatarColor
                       )};"`
                     : "";
 
+            const typeCounts = new Map();
+            group.interactions.forEach(interaction =>
+                typeCounts.set(interaction.type || "Diğer",
+                    (typeCounts.get(interaction.type || "Diğer") || 0) + 1));
+            const typeSummary = [...typeCounts.entries()]
+                .map(([type, count]) =>
+                    `<span class="interaction-page-type">${count} ${escapeHTML(type)}</span>`)
+                .join("");
+            const countLabel = filtersActive && group.interactions.length !== group.totalCount
+                ? `${group.interactions.length} / ${group.totalCount} görüşme`
+                : `${group.totalCount} görüşme`;
+
             item.innerHTML = `
-                <div
-                    class="interaction-page-avatar"
-                    data-avatar-customer="${escapeHTML(
-                        interaction.customerId
-                    )}"
-                    title="Avatar rengini değiştir"
-                    ${avatarStyle}
-                >
-                    ${escapeHTML(
-                        getInitials(
-                            interaction.customerName
-                        )
-                    )}
-                </div>
-
-                <div class="interaction-page-content">
-
-                    <div class="interaction-page-top">
-
-                        <strong>
-                            ${escapeHTML(
-                                interaction.customerName
-                            )}
-                        </strong>
-
-                        <span>
-                            ${formatDateTime(
-                                interaction.createdAt
-                            )}
+                <summary class="interaction-customer-summary">
+                    <span class="interaction-page-avatar" ${avatarStyle}>${escapeHTML(getInitials(group.customerName))}</span>
+                    <span class="interaction-page-content">
+                        <span class="interaction-page-top">
+                            <strong>${escapeHTML(group.customerName)}</strong>
+                            <time class="interaction-page-date" datetime="${escapeHTML(group.interactions[0].createdAt)}">Son görüşme: ${escapeHTML(formatDateTime(group.interactions[0].createdAt))}</time>
                         </span>
-
+                        <span class="interaction-page-meta">${escapeHTML(group.product || "-")}${group.customerPhone ? ` · ${escapeHTML(group.customerPhone)}` : ""}</span>
+                        <span class="interaction-group-counts"><strong>${countLabel}</strong>${typeSummary}</span>
+                    </span>
+                    <span class="interaction-group-chevron" aria-hidden="true">⌄</span>
+                </summary>
+                <div class="interaction-group-body">
+                    <div class="interaction-group-toolbar">
+                        <span>Görüşme geçmişi · yeniden eskiye</span>
+                        <button class="followup-detail-button" data-interaction-customer="${escapeHTML(group.customerId)}" type="button">Müşteri Detayı</button>
                     </div>
-
-                    <div class="interaction-page-meta">
-                        ${escapeHTML(
-                            interaction.type
-                        )}
-                        ·
-                        ${escapeHTML(
-                            interaction.product ||
-                                "-"
-                        )}
-                        ${
-                            interaction.customerPhone
-                                ? ` · ${escapeHTML(
-                                      interaction.customerPhone
-                                  )}`
-                                : ""
-                        }
+                    <div class="interaction-group-entries">
+                        ${group.interactions.map(interaction => `
+                            <article class="interaction-group-entry">
+                                <div class="interaction-group-entry-top">
+                                    <span class="interaction-page-type">${escapeHTML(interaction.type || "Diğer")}</span>
+                                    <time datetime="${escapeHTML(interaction.createdAt)}">${escapeHTML(formatDateTime(interaction.createdAt))}</time>
+                                    <button class="interaction-delete-button" data-delete-interaction="${escapeHTML(interaction.id)}" data-delete-customer="${escapeHTML(interaction.customerId)}" type="button" aria-label="${escapeHTML(group.customerName)} görüşmesini sil">Sil</button>
+                                </div>
+                                <p class="interaction-page-note">${escapeHTML(interaction.note || "Not yok")}</p>
+                            </article>
+                        `).join("")}
                     </div>
-
-                    <div class="interaction-page-note">
-                        ${escapeHTML(
-                            interaction.note
-                        )}
-                    </div>
-
-                </div>
-
-                <div class="interaction-page-actions">
-                    <button
-                        class="followup-detail-button"
-                        data-interaction-customer="${escapeHTML(
-                            interaction.customerId
-                        )}"
-                        type="button"
-                    >
-                        Detay
-                    </button>
-
-                    <button
-                        class="interaction-delete-button"
-                        data-delete-interaction="${escapeHTML(interaction.id)}"
-                        data-delete-customer="${escapeHTML(interaction.customerId)}"
-                        type="button"
-                        title="Görüşmeyi sil"
-                        aria-label="${escapeHTML(interaction.customerName)} görüşmesini sil"
-                    >
-                        Sil
-                    </button>
                 </div>
             `;
 
@@ -336,26 +403,64 @@ function setupInteractionPageActions() {
                 return;
             }
 
-            const button =
-                event.target.closest(
-                    "[data-interaction-customer]"
-                );
-
-            if (!button) {
-                return;
-            }
-
-            openCustomerDetail(
-                button.dataset
-                    .interactionCustomer
-            );
+            const button = event.target.closest("[data-interaction-customer]");
+            if (button) openCustomerDetail(button.dataset.interactionCustomer);
         }
     );
+
+    allInteractionList.addEventListener("toggle", event => {
+        const group = event.target.closest?.(".interaction-customer-group");
+        if (!group || event.target !== group) return;
+        if (group.open) expandedInteractionCustomers.add(group.dataset.customerId);
+        else expandedInteractionCustomers.delete(group.dataset.customerId);
+    }, true);
+}
+
+function setupInteractionFilters() {
+    let searchTimer;
+    $("interactionSearchInput")?.addEventListener("input", () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(renderAllInteractions, 180);
+    });
+    $("interactionTypeFilter")?.addEventListener("change", renderAllInteractions);
+    $("interactionDateFilter")?.addEventListener("change", renderAllInteractions);
+    $("clearInteractionFilters")?.addEventListener("click", () => {
+        clearTimeout(searchTimer);
+        $("interactionSearchInput").value = "";
+        $("interactionTypeFilter").value = "all";
+        $("interactionDateFilter").value = "all";
+        renderAllInteractions();
+        $("interactionSearchInput").focus();
+    });
 }
 
 /* =========================================================
    ADD / SAVE INTERACTION
 ========================================================= */
+
+function updateInteractionFollowupFields() {
+    const reschedule = $("interactionFollowupOutcome").value === "reschedule";
+    $("interactionNextActionFields").hidden = !reschedule;
+    $("interactionNextActionDate").required = reschedule;
+}
+
+function openInteractionModalForCustomer(customer) {
+    if (!customer) return;
+    selectedCustomerId = customer.id;
+    $("interactionForm").reset();
+    $("interactionFollowupPanel").hidden = false;
+    $("interactionFollowupOutcome").value = "reschedule";
+    $("interactionNextActionDate").setCustomValidity("");
+    $("interactionNextActionTime").setCustomValidity("");
+    $("interactionNextActionDate").min = getToday();
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    $("interactionNextActionDate").value = formatDateForInput(tomorrow);
+    $("interactionNextActionTime").value = customer.nextActionTime || "";
+    updateInteractionFollowupFields();
+    interactionModal.classList.add("show");
+    requestAnimationFrame(() => $("interactionType")?.focus());
+}
 
 function setupInteractionEvents() {
     $("interactionList")?.addEventListener("click", event => {
@@ -378,13 +483,20 @@ function setupInteractionEvents() {
                 return;
             }
 
-            $("interactionForm").reset();
-
-            interactionModal.classList.add(
-                "show"
-            );
+            const customer = customers.find(item =>
+                String(item.id) === String(selectedCustomerId));
+            openInteractionModalForCustomer(customer);
         }
     );
+
+    $("interactionFollowupOutcome").addEventListener(
+        "change", updateInteractionFollowupFields);
+    $("interactionNextActionDate").addEventListener("input", event => {
+        event.target.setCustomValidity("");
+        $("interactionNextActionTime").setCustomValidity("");
+    });
+    $("interactionNextActionTime").addEventListener("input", event =>
+        event.target.setCustomValidity(""));
 
     $("interactionForm").addEventListener(
         "submit",
@@ -435,6 +547,27 @@ function setupInteractionEvents() {
                 return;
             }
 
+            const outcome = $("interactionFollowupOutcome").value;
+            const nextDate = outcome === "reschedule"
+                ? $("interactionNextActionDate").value : "";
+            const nextTime = outcome === "reschedule"
+                ? $("interactionNextActionTime").value : "";
+            if (outcome === "reschedule" && (!nextDate || nextDate < getToday())) {
+                $("interactionNextActionDate").setCustomValidity(
+                    "Bugün veya sonrası için tarih seçin.");
+                $("interactionNextActionDate").reportValidity();
+                return;
+            }
+            if (outcome === "reschedule" && nextDate === getToday() && nextTime &&
+                new Date(`${nextDate}T${nextTime}`).getTime() <= Date.now()) {
+                $("interactionNextActionTime").setCustomValidity(
+                    "Geçmiş bir saat seçilemez.");
+                $("interactionNextActionTime").reportValidity();
+                return;
+            }
+
+            const oldDate = customer.nextActionDate;
+            const oldTime = customer.nextActionTime;
             customer.interactions.push(
                 interaction
             );
@@ -444,6 +577,16 @@ function setupInteractionEvents() {
 
             customer.note =
                 interaction.note;
+            customer.noteSourceInteractionId = interaction.id;
+
+            if (outcome === "reschedule" || outcome === "complete") {
+                setCustomerFollowupSchedule(customer,
+                    outcome === "complete" ? "" : nextDate,
+                    outcome === "complete" ? "" : nextTime);
+                addCustomerFollowupHistory(customer,
+                    outcome === "complete" ? "contact_completed" : "contact_rescheduled",
+                    interaction.note, oldDate, oldTime);
+            }
 
             saveLocalData();
 
@@ -452,6 +595,12 @@ function setupInteractionEvents() {
             renderCustomerInteractions(
                 customer
             );
+            renderCustomerFollowupHistory(customer);
+            if (detailOverlay.classList.contains("show")) {
+                renderLastCall($("detailLastCall"), customer.lastCall);
+                $("detailNextAction").textContent = getCustomerReminderSummary(customer);
+                $("detailNote").textContent = customer.note || "-";
+            }
 
             interactionModal.classList.remove(
                 "show"

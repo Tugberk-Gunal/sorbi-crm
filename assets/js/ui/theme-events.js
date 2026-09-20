@@ -157,6 +157,13 @@ function setupModalEvents() {
                 return;
             }
 
+            const customerDeleteModal = $("customerDeleteModal");
+
+            if (customerDeleteModal?.classList.contains("show")) {
+                closeCustomerDeleteModal();
+                return;
+            }
+
             customerModal.classList.remove(
                 "show"
             );
@@ -179,9 +186,13 @@ function setupModalEvents() {
 ========================================================= */
 
 function setupFilters() {
+    let searchTimer;
     $("searchInput").addEventListener(
         "input",
-        renderCustomers
+        () => {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(renderCustomers, 180);
+        }
     );
 
     $("statusFilter").addEventListener(
@@ -202,6 +213,7 @@ function setupFilters() {
     $("clearFilters").addEventListener(
         "click",
         () => {
+            clearTimeout(searchTimer);
             $("searchInput").value =
                 "";
 
@@ -215,28 +227,6 @@ function setupFilters() {
                 "all";
 
             renderCustomers();
-        }
-    );
-}
-
-/* =========================================================
-   LOGOUT
-========================================================= */
-
-function setupLogout() {
-    $("logoutButton").addEventListener(
-        "click",
-        async () => {
-            if (
-                typeof logoutUser ===
-                "function"
-            ) {
-                await logoutUser();
-            }
-
-            alert(
-                "Çıkış işlemi tamamlandı."
-            );
         }
     );
 }

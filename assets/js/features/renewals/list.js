@@ -114,7 +114,8 @@ function getFilteredRenewals() {
 
                     return (
                         name.includes(search) ||
-                        policy.includes(search)
+                        policy.includes(search) ||
+                        String(renewal.tc || "").includes(search)
                     );
                 }
             );
@@ -317,7 +318,14 @@ function renderRenewals() {
     }
 
 
-    filtered.forEach(
+    const visible = getListPage("renewalList", [
+        $("renewalSearchInput")?.value || "",
+        $("renewalProductFilter")?.value || "all",
+        $("renewalDateFilter")?.value || "all"
+    ].join("|"), filtered);
+    updateListPager("renewalList", filtered.length, renderRenewals);
+
+    visible.forEach(
         (renewal) => {
 
             const item =
@@ -325,6 +333,15 @@ function renderRenewals() {
 
             item.className =
                 "customer-row renewal-row";
+
+            const linkedCustomer = getLinkedPolicyCustomerForRenewal(renewal);
+            if (linkedCustomer) {
+                item.classList.add("renewal-row-linked");
+                item.dataset.renewalId = renewal.id;
+                item.tabIndex = 0;
+                item.setAttribute("role", "group");
+                item.setAttribute("aria-label", `${renewal.customerName || linkedCustomer.name} müşteri detaylarını açmak için Enter tuşuna basın`);
+            }
 
 
             const days =
@@ -379,6 +396,7 @@ function renderRenewals() {
                                 renewal.customerName
                             )}
                         </div>
+                        ${renewal.tc ? `<div class="customer-tc">TC: ${escapeHTML(renewal.tc)}</div>` : ""}
 
                     </div>
 
@@ -478,6 +496,3 @@ function renderRenewals() {
 
     updateRenewalSummary();
 }
-
-
-

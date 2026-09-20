@@ -17,12 +17,37 @@ function collectionToday() {
 }
 
 function collectionParseDate(value) {
-    if (!value) {
+    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
         return null;
     }
 
-    const date = new Date(`${value}T00:00:00`);
-    return Number.isNaN(date.getTime()) ? null : date;
+    const [year, month, day] = value.split("-").map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.getFullYear() === year &&
+        date.getMonth() === month - 1 &&
+        date.getDate() === day ? date : null;
+}
+
+function collectionDaysUntil(dateString, todayString = collectionToday()) {
+    const due = collectionParseDate(dateString);
+    const today = collectionParseDate(todayString);
+    if (!due || !today) return null;
+    const calendarDay = date => Date.UTC(
+        date.getFullYear(), date.getMonth(), date.getDate()
+    );
+    return Math.round((calendarDay(due) - calendarDay(today)) / 86400000);
+}
+
+function getCollectionCountdown(collection, todayString = collectionToday()) {
+    if (getCollectionStatus(collection, todayString) === "completed") {
+        return { text: "Tamamlandı", tone: "completed" };
+    }
+    const days = collectionDaysUntil(collection?.nextPaymentDate, todayString);
+    if (days === null) return { text: "Tarih yok", tone: "undated" };
+    if (days < 0) return { text: `${Math.abs(days)} gün gecikti`, tone: "overdue" };
+    if (days === 0) return { text: "Bugün", tone: "today" };
+    if (days === 1) return { text: "Yarın", tone: "upcoming" };
+    return { text: `${days} gün kaldı`, tone: "upcoming" };
 }
 
 function collectionFormatDate(value) {
@@ -69,16 +94,6 @@ function findCustomerForCollectionRecord(record) {
         return null;
     }
 
-    if (record.customerId) {
-        const byId = customers.find(
-            customer => String(customer.id) === String(record.customerId)
-        );
-
-        if (byId) {
-            return byId;
-        }
-    }
-
     const name = normalizeIdentityText(
         record.customerName || record.customer || record.name
     );
@@ -87,35 +102,46 @@ function findCustomerForCollectionRecord(record) {
     );
     const tc = String(record.tc || record.customerTc || "").trim();
 
-    return customers.find(customer => {
-        if (tc && customer.tc && String(customer.tc) === tc) {
-            return true;
-        }
+    if (tc) {
+        const matches = customers.filter(customer =>
+            getCustomerInsuredPersons(customer)
+                .some(person => String(person.tc || "") === tc));
+        return matches.length === 1 ? matches[0] : null;
+    }
+    if (!name || !phone) return null;
+    const matches = customers.filter(customer =>
+        normalizeIdentityText(customer.name) === name &&
+        normalizePhone(customer.phone) === phone);
+    return matches.length === 1 ? matches[0] : null;
+}
 
-        const sameName =
-            name && normalizeIdentityText(customer.name) === name;
-        const samePhone =
-            phone && normalizePhone(customer.phone) === phone;
-
-        return sameName && (!phone || samePhone);
-    }) || null;
+function resolveCollectionCustomerForEdit(previous, identity) {
+    const unchanged = previous &&
+        normalizeIdentityText(identity.customerName) === normalizeIdentityText(previous.customerName) &&
+        normalizePhone(identity.phone) === normalizePhone(previous.phone) &&
+        String(identity.tc || "").trim() === String(previous.tc || "").trim();
+    return (unchanged && previous.customerId && customers.find(customer =>
+        String(customer.id) === String(previous.customerId))) ||
+        findCustomerForCollectionRecord(identity);
 }
 
 function normalizeCollections() {
     collections = collections.map(item => {
-        const linkedCustomer = findCustomerForCollectionRecord(item);
+        const linkedCustomer = (item.customerId && customers.find(customer =>
+            String(customer.id) === String(item.customerId))) ||
+            findCustomerForCollectionRecord(item);
 
         return {
             ...item,
             id: item.id || collectionCreateId(),
-            customerId: item.customerId || linkedCustomer?.id || null,
+            customerId: linkedCustomer?.id || null,
             customerName:
                 item.customerName || item.customer || item.name || linkedCustomer?.name || "",
             phone:
                 item.phone || item.customerPhone || item.telephone || linkedCustomer?.phone || "",
             tc:
                 item.tc || item.customerTc || linkedCustomer?.tc || "",
-            product: item.product || linkedCustomer?.product || "TSS",
+            product: normalizeProductName(item.product || linkedCustomer?.product) || "TSS",
             policyNumber: item.policyNumber || item.policyNo || item.policy || "",
             installmentCount: Number(item.installmentCount || 1),
             currentInstallment: Number(item.currentInstallment || 1),
@@ -124,6 +150,12 @@ function normalizeCollections() {
                     ? null
                     : Number(item.installmentAmount),
             firstPaymentDate: item.firstPaymentDate || item.nextPaymentDate || collectionToday(),
+            billingAnchorDate: item.billingAnchorDate || item.firstPaymentDate ||
+                item.nextPaymentDate || collectionToday(),
+            billingAnchorInstallment: Number(item.billingAnchorInstallment ||
+                (Number(item.currentInstallment || 1) > 1 &&
+                item.firstPaymentDate === item.nextPaymentDate
+                    ? item.currentInstallment : 1)),
             nextPaymentDate: item.nextPaymentDate || null,
             paymentMethod: item.paymentMethod || "unblocked",
             note: item.note || "",
@@ -137,31 +169,50 @@ function normalizeCollections() {
 }
 
 function loadCollectionData() {
+    let saved = null;
     try {
-        const saved = localStorage.getItem(COLLECTION_STORAGE_KEY);
+        saved = localStorage.getItem(COLLECTION_STORAGE_KEY);
 
         if (!saved) {
             collections = [];
-            return;
+            return true;
         }
 
         const parsed = JSON.parse(saved);
-        collections = Array.isArray(parsed) ? parsed : [];
+        if (!Array.isArray(parsed)) throw new Error("Tahsilat verisi dizi değil");
+        collections = parsed;
         normalizeCollections();
+        return true;
     } catch (error) {
         console.error("Tahsilat verileri yüklenemedi:", error);
         collections = [];
+        blockUnreadableStorage(COLLECTION_STORAGE_KEY, saved || "",
+            "Tahsilat verisi okunamadı. Üzerine yazılmadı; mevcut veriyi indirin.");
+        return false;
     }
 }
 
 function saveCollectionData() {
-    localStorage.setItem(
-        COLLECTION_STORAGE_KEY,
-        JSON.stringify(collections)
-    );
+    if (isStorageBlocked(COLLECTION_STORAGE_KEY)) {
+        showStorageFailure(COLLECTION_STORAGE_KEY,
+            "Tahsilat verisi okunamadığı için üzerine yazma engellendi. Mevcut veriyi indirin.",
+            blockedStorageBackups.get(COLLECTION_STORAGE_KEY));
+        return false;
+    }
+    const backup = JSON.stringify(collections);
+    try {
+        localStorage.setItem(COLLECTION_STORAGE_KEY, backup);
+        clearStorageFailure(COLLECTION_STORAGE_KEY);
+        return true;
+    } catch (error) {
+        console.error("Tahsilat verisi kaydedilemedi:", error);
+        showStorageFailure(COLLECTION_STORAGE_KEY,
+            "Tahsilat değişiklikleri kaydedilemedi. Sayfayı kapatmadan veriyi indirin.", backup);
+        return false;
+    }
 }
 
-function getCollectionStatus(collection) {
+function getCollectionStatus(collection, todayString = collectionToday()) {
     if (!collection) {
         return "pending";
     }
@@ -178,21 +229,22 @@ function getCollectionStatus(collection) {
         return "pending";
     }
 
-    return collection.nextPaymentDate < collectionToday()
-        ? "overdue"
-        : "pending";
+    const days = collectionDaysUntil(collection.nextPaymentDate, todayString);
+    return days !== null && days < 0 ? "overdue" : "pending";
 }
 
-function getCollectionStatusText(status) {
-    if (status === "overdue") {
-        return "Geciken";
-    }
-
-    if (status === "completed") {
-        return "Tamamlandı";
-    }
-
-    return "Bekliyor";
+function getCollectionInstallmentProgress(collection) {
+    const total = Math.max(1, Number(collection?.installmentCount) || 1);
+    const current = Math.max(1, Number(collection?.currentInstallment) || 1);
+    const completed = getCollectionStatus(collection) === "completed";
+    const paid = completed ? total : Math.min(total, current - 1);
+    return {
+        current: completed ? total : Math.min(current, total),
+        total,
+        paid,
+        completed,
+        percent: Math.round(paid / total * 100)
+    };
 }
 
 function collectionIsSameDate(date1, date2) {

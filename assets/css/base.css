@@ -82,4 +82,17 @@ img {
 .hidden-page {
     display: none !important;
 }
+.list-pager {
+    display: block;
+    margin: 20px auto 8px;
+    padding: 11px 20px;
+    border: 1px solid var(--border, #cbd5e1);
+    border-radius: 12px;
+    background: var(--surface, transparent);
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
 
+.list-pager[hidden] { display: none; }
+.list-pager:hover { filter: brightness(.96); }

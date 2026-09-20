@@ -119,6 +119,18 @@ function formatCreatedTime(value) {
     );
 }
 
+function formatLastCallHTML(value) {
+    if (!value) return "-";
+    const date = formatDateOnly(value);
+    const time = formatCreatedTime(value);
+    if (date === "-" || time === "-") return "-";
+    return `<span class="last-call-value"><span class="last-call-date">${escapeHTML(date)}</span><span class="last-call-time">${escapeHTML(time)}</span></span>`;
+}
+
+function renderLastCall(element, value) {
+    if (element) element.innerHTML = formatLastCallHTML(value);
+}
+
 function getDaysDifference(dateString) {
     if (!dateString) {
         return null;
@@ -180,11 +192,7 @@ function isOverdue(customer) {
         return false;
     }
 
-    if (
-        customer.status === "Poliçeleşti" ||
-        customer.status === "Olumsuz" ||
-        customer.status === "Yanlış"
-    ) {
+    if (!customerHasActiveFollowup(customer)) {
         return false;
     }
 
@@ -333,4 +341,3 @@ function updateFollowupDateTime() {
             );
     }
 }
-

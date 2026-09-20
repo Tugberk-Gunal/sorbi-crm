@@ -1,0 +1,36 @@
+.detail-panel{box-shadow:-8px 0 24px rgba(18,57,77,.035)}
+.detail-header{padding-bottom:26px}.detail-header h2{font-size:26px;letter-spacing:-.02em}.offer-date{display:inline-flex;align-items:center;gap:6px;margin:10px 0 0;padding:5px 9px;border-radius:6px;background:#f4f7f8;color:#5e6d77;font-size:12px;font-weight:600}.offer-date::before{content:"◷";color:#1a8b82}
+.status-card{display:grid;grid-template-columns:1fr 1fr 1fr;margin:24px 0 34px;padding:20px 22px;border:1px solid #dcebe8;box-shadow:0 5px 16px rgba(18,57,77,.045)}.status-label{color:#53616b;font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.status-card #statusBadge{justify-self:end;margin:0;padding:8px 14px;border-radius:999px;font-size:14px;line-height:1.2;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}.status-card .offer-date{justify-self:center;margin:0;background:#fff}
+.section-title{padding-bottom:10px;border-bottom:1px solid #edf0f1}.section-title h3{font-size:18px}.section-title .secondary-button{padding:7px 10px;border:1px solid #cfe4e1;background:#f5fbfa;font-size:12px}
+dialog form{padding-bottom:22px}dialog .modal-header h2{font-size:20px}dialog .modal-header .eyebrow{font-size:10px}dialog label{margin:12px 0;font-size:13px}dialog input,dialog select{min-height:38px;padding:8px 10px;font-size:13px}dialog input::placeholder,dialog textarea::placeholder{color:#98a3aa;font-size:11px}dialog input[type="date"]{color:#34414a}dialog .modal-actions{margin-top:20px}dialog .modal-actions .primary-button,dialog .modal-actions .text-button{padding:8px 11px;font-size:13px}
+@media(max-width:700px){.detail-header h2{font-size:23px}.status-card{gap:8px;padding:16px;align-items:center}.status-label{font-size:10px}.status-card #statusBadge{padding:7px 10px;font-size:12px}.status-card .offer-date{padding:4px 6px;font-size:11px}}
+
+/* Header actions (edit + delete) */
+.header-actions{display:flex;gap:8px;flex:none}
+.icon-button.edit{background:#e9f2f5;color:#2c6f8a}
+.icon-button.edit:hover{background:#dcebf1}
+.icon-button:hover{filter:brightness(.97)}
+
+/* Status select styled to look like the badge, but interactive */
+.status-select{appearance:none;-webkit-appearance:none;border:0;cursor:pointer;font:inherit;font-weight:700;padding-right:26px!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23000' stroke-opacity='.45' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.status-select:hover{filter:brightness(.96)}
+.status-select:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+/* Search clear button */
+.search{position:relative}
+.search input{padding-right:26px}
+.search-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:20px;height:20px;border:0;border-radius:50%;background:#e2e7e9;color:#5c6670;font-size:14px;line-height:1;cursor:pointer;display:grid;place-items:center}
+.search-clear:hover{background:#d5dadd}
+
+/* Confirmation dialog (no <form>, so it needs its own padding) */
+#confirmDialog{padding:24px 24px 22px}
+.confirm-message{margin:14px 0 0;color:#4a5760;line-height:1.55}
+#confirmDialog .modal-actions{margin-top:20px}
+.primary-button.danger{background:#c0524f}
+.primary-button.danger:hover{background:#ac4744}
+
+/* Toast notifications */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(16px);padding:11px 18px;border-radius:9px;background:#17222d;color:#fff;font-size:13px;font-weight:600;box-shadow:0 12px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;z-index:50}
+.toast.visible{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:700px){.toast{bottom:16px;left:16px;right:16px;transform:translateY(16px);text-align:center}.toast.visible{transform:translateY(0)}}
+

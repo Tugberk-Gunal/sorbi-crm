@@ -66,8 +66,10 @@ function createCollectionModal() {
                         <select id="collectionProduct" required>
                             <option value="TSS">TSS</option>
                             <option value="ÖSS">ÖSS</option>
-                            <option value="Kasko">Kasko</option>
                             <option value="DASK">DASK</option>
+                            <option value="TRAFİK">TRAFİK</option>
+                            <option value="KASKO">KASKO</option>
+                            <option value="FERDİ KAZA">FERDİ KAZA</option>
                             <option value="Diğer">Diğer</option>
                         </select>
                     </label>
@@ -173,6 +175,22 @@ function createCollectionModal() {
     document
         .getElementById("collectionForm")
         ?.addEventListener("submit", handleCollectionSubmit);
+
+    document.getElementById("collectionCustomerTc")?.addEventListener("change", event => {
+        const tc = event.target.value.trim();
+        if (!tc) return;
+        const customer = findCustomerForCollectionRecord({ tc });
+        const person = customer && getCustomerInsuredPersons(customer)
+            .find(item => item.tc === tc);
+        if (!person) return;
+        document.getElementById("collectionProduct").value = person.product;
+        if (!document.getElementById("collectionCustomerName").value.trim()) {
+            document.getElementById("collectionCustomerName").value = person.name || customer.name;
+        }
+        if (!document.getElementById("collectionPhone").value.trim()) {
+            document.getElementById("collectionPhone").value = customer.phone || "";
+        }
+    });
 
     overlay.addEventListener("click", event => {
         if (event.target === overlay) {
@@ -299,7 +317,8 @@ function handleCollectionSubmit(event) {
         phone,
         tc
     };
-    const linkedCustomer = findCustomerForCollectionRecord(identity);
+    const previous = editingCollectionId ? collectionGet(editingCollectionId) : null;
+    const linkedCustomer = resolveCollectionCustomerForEdit(previous, identity);
 
     if (editingCollectionId) {
         const item = collectionGet(editingCollectionId);
@@ -310,14 +329,19 @@ function handleCollectionSubmit(event) {
 
         const wasCompleted = getCollectionStatus(item) === "completed";
 
-        item.customerId = item.customerId || linkedCustomer?.id || null;
+        item.customerId = linkedCustomer?.id || null;
         item.customerName = customerName;
         item.phone = phone || linkedCustomer?.phone || "";
-        item.tc = tc || linkedCustomer?.tc || "";
+        item.tc = tc;
         item.product = product;
         item.policyNumber = policyNumber;
         item.installmentCount = installmentCount;
         item.installmentAmount = installmentAmount;
+        if (item.nextPaymentDate !== firstPaymentDate ||
+            Number(item.currentInstallment) !== currentInstallment) {
+            item.billingAnchorDate = firstPaymentDate;
+            item.billingAnchorInstallment = currentInstallment;
+        }
         item.firstPaymentDate = item.firstPaymentDate || firstPaymentDate;
         item.paymentMethod = paymentMethod;
         item.note = note;
@@ -338,13 +362,15 @@ function handleCollectionSubmit(event) {
             customerId: linkedCustomer?.id || null,
             customerName,
             phone: phone || linkedCustomer?.phone || "",
-            tc: tc || linkedCustomer?.tc || "",
+            tc,
             product,
             policyNumber,
             installmentCount,
             currentInstallment,
             installmentAmount,
             firstPaymentDate,
+            billingAnchorDate: firstPaymentDate,
+            billingAnchorInstallment: currentInstallment,
             nextPaymentDate: firstPaymentDate,
             paymentMethod,
             note,

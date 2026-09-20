@@ -77,6 +77,13 @@ const PAGE_CONFIG = {
         title: "Tahsilat Takip",
         description:
             "Poliçelerinizin taksit ve tahsilat durumlarını kolayca takip edin."
+    },
+
+    riskTracking: {
+        eyebrow: "RİSK YÖNETİMİ",
+        title: "Risk Takip",
+        description:
+            "Risk değerlendirmelerini ve müşteri notlarını yönetin."
     }
 };
 
@@ -87,7 +94,8 @@ function switchPage(page) {
         followups: $("followupsPage"),
         interactions: $("interactionsPage"),
         renewals: $("renewalsPage"),
-        collections: $("collectionsPage")
+        collections: $("collectionsPage"),
+        riskTracking: $("riskTrackingPage")
     };
 
     const mainSummary =
@@ -255,4 +263,3 @@ function setupNavigation() {
             }
         );
 }
-

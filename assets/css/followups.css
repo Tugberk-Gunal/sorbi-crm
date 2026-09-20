@@ -166,10 +166,10 @@
     display: grid;
 
     grid-template-columns:
-        minmax(230px, 1.4fr)
-        minmax(130px, .8fr)
-        minmax(150px, .9fr)
-        auto;
+        minmax(210px, 1.3fr)
+        minmax(120px, .7fr)
+        minmax(150px, .8fr)
+        minmax(260px, 1.2fr);
 
     align-items: center;
 
@@ -182,10 +182,16 @@
     border-radius: 13px;
 
     background: var(--surface);
+    cursor: pointer;
 
     transition:
         box-shadow .18s ease,
         transform .18s ease;
+}
+
+.followup-card:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
 }
 
 .followup-card:hover {
@@ -201,6 +207,14 @@
     background: #fffafa;
 }
 
+.followup-card.followup-hot {
+    box-shadow: inset 3px 0 0 #e96558;
+}
+
+.followup-card.followup-hot:hover {
+    box-shadow: inset 3px 0 0 #e96558, 0 7px 20px rgba(24, 34, 48, .05);
+}
+
 .followup-customer {
     display: flex;
 
@@ -214,6 +228,18 @@
 .followup-customer-info {
     min-width: 0;
 }
+
+.followup-name-line {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+}
+
+.followup-name-line .followup-name {
+    min-width: 0;
+}
+
 
 .followup-name {
     font-size: 13px;
@@ -244,6 +270,15 @@
     font-size: 11px;
 
     color: var(--muted);
+}
+
+.followup-product-list,
+.followup-status-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
 }
 
 .followup-product,
@@ -324,6 +359,8 @@
     align-items: center;
 
     justify-content: flex-end;
+
+    flex-wrap: wrap;
 }
 
 .followup-detail-button {
@@ -382,3 +419,85 @@
     transform: scale(.95);
 }
 
+.followup-quick-button,
+.followup-quiet-button {
+    min-height: 31px;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface-soft);
+    color: var(--text);
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.followup-quick-button:hover,
+.followup-quiet-button:hover {
+    border-color: var(--primary);
+    color: var(--primary-dark);
+}
+
+.followup-done-button {
+    border-color: rgba(25, 169, 116, .28);
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+}
+
+.followup-quiet-button {
+    background: transparent;
+}
+
+.followup-action-description {
+    margin: 4px 0 18px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.followup-action-modal form,
+.followup-action-modal #followupScheduleFields {
+    display: grid;
+    gap: 14px;
+}
+
+.followup-action-modal #followupScheduleFields[hidden] {
+    display: none;
+}
+
+.followup-quick-dates,
+.followup-schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.followup-schedule-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.followup-quick-dates button {
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--surface-soft);
+    color: var(--text);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.followup-quick-dates button:hover {
+    border-color: var(--primary);
+    color: var(--primary-dark);
+}
+
+.followup-action-hint {
+    margin: -4px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+@media (max-width: 480px) {
+    .followup-schedule-grid {
+        grid-template-columns: 1fr;
+    }
+}

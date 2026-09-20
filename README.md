@@ -1,5 +1,9 @@
 # SORBİ CRM - Modüler UI/Logic Sürümü
 
+Canlı sürüm: https://tugberk-gunal.github.io/sorbi-crm/
+
+Uygulama müşteri, görüşme, takip, yenileme, tahsilat ve risk kayıtlarını içerir. Veriler bu aşamada kullanılan tarayıcının yerel depolama alanında tutulur.
+
 Bu paket mevcut SORBİ CRM görünümünü koruyarak kodu modüllere ayırır ve üç ana geliştirmeyi içerir:
 
 1. **Tahsilat Takip** tablosu, Yaklaşan Yenilemeler ekranındaki gibi kompakt/Excel-benzeri satır düzenine geçirildi.
@@ -21,8 +25,6 @@ Bu paket mevcut SORBİ CRM görünümünü koruyarak kodu modüllere ayırır ve
    - Başlangıç tarihi o gün, yenileme tarihi varsayılan olarak 1 yıl sonrası atanır.
    - Poliçe no ve diğer bilgiler sonradan Yaklaşan Yenilemeler ekranından düzenlenebilir.
    - Aynı müşteri için ikinci kez otomatik yenileme kaydı oluşturulmaz.
-
- https://tugberk-gunal.github.io/sorbi-crm/
 
 ## Dosya yapısı
 
@@ -74,7 +76,5 @@ sorbi_crm_modular/
 │       │   └── supabase-customers.js
 │       └── app.js
 └── README.md
-
-https://tugberk-gunal.github.io/sorbi-crm/
-
+```
 

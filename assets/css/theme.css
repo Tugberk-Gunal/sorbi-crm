@@ -21,6 +21,12 @@ body.dark {
         0 12px 35px rgba(0, 0, 0, .2);
 }
 
+/* Yerel takvim/saat simgeleri koyu zeminde açık renkle çizilsin. */
+body.dark input[type="date"],
+body.dark input[type="time"] {
+    color-scheme: dark;
+}
+
 body.dark .customer-row:hover {
     background: #1c2630;
 }

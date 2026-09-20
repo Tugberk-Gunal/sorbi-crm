@@ -111,6 +111,11 @@
 
 .renewal-row {
     min-height: 70px;
+    cursor: default;
+}
+
+.renewal-row-linked {
+    cursor: pointer;
 }
 
 .renewal-row:hover {
@@ -382,8 +387,4 @@ body.dark .renewal-row .date-value.overdue-date {
         width: calc(100vw - 20px);
     }
 
-}
-
-#addRenewalButton {
-    background-color: rgb(120, 5, 169) !important;
 }

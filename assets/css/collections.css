@@ -7,6 +7,33 @@
     align-items: center;
 }
 
+.collections-header #addCollectionButton,
+.renewals-header #addRenewalButton {
+    background: #7053bf;
+    box-shadow: 0 5px 15px rgba(112, 83, 191, .22);
+    transition: background-color .18s ease, box-shadow .18s ease, transform .12s ease;
+}
+
+.collections-header #addCollectionButton:hover,
+.renewals-header #addRenewalButton:hover {
+    background: #5e40aa;
+    box-shadow: 0 8px 20px rgba(94, 64, 170, .3);
+    transform: translateY(-2px);
+}
+
+.collections-header #addCollectionButton:active,
+.renewals-header #addRenewalButton:active {
+    background: #4d328e;
+    box-shadow: 0 3px 8px rgba(77, 50, 142, .25);
+    transform: translateY(0) scale(.97);
+}
+
+.collections-header #addCollectionButton:focus-visible,
+.renewals-header #addRenewalButton:focus-visible {
+    outline: 3px solid #b9a6ee;
+    outline-offset: 3px;
+}
+
 .collections-title-row {
     display: flex;
     align-items: center;
@@ -121,14 +148,14 @@
         minmax(155px, 1.2fr)
         82px
         minmax(125px, 1fr)
-        82px
+        112px
         128px
         108px
-        100px
+        128px
         116px;
     gap: 0;
     align-items: center;
-    min-width: 1260px;
+    min-width: 1318px;
 }
 
 .collection-table-head {
@@ -287,21 +314,83 @@
 }
 
 .collection-installment {
-    font-weight: 750;
+    overflow: visible;
+}
+
+.collection-installment-badge {
+    width: 88px;
+    padding: 7px 10px 8px;
+    border: 1px solid rgba(25, 169, 116, .22);
+    border-radius: 12px;
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    box-shadow: 0 3px 10px rgba(18, 95, 69, .06);
+    font-variant-numeric: tabular-nums;
+}
+
+.collection-installment-numbers {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 2px;
+    line-height: 1;
+}
+
+.collection-installment-numbers strong {
+    font-size: 19px;
+    font-weight: 850;
+    letter-spacing: -.5px;
+}
+
+.collection-installment-numbers span {
+    font-size: 12px;
+    font-weight: 700;
+    opacity: .78;
+}
+
+.collection-installment-track {
+    display: block;
+    height: 4px;
+    margin-top: 7px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(25, 169, 116, .18);
+}
+
+.collection-installment-track > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--primary);
+    transition: width .2s ease;
+}
+
+.collection-installment-badge.is-complete {
+    border-color: rgba(25, 169, 116, .4);
+    background: #ecfdf3;
 }
 
 .collection-status {
     min-width: 78px;
-    height: 27px;
-    padding: 0 9px;
+    min-height: 27px;
+    max-width: 100%;
+    padding: 6px 9px;
     border-radius: 999px;
     font-size: 11px;
     font-weight: 750;
+    line-height: 1.2;
+    text-align: center;
+    white-space: normal;
 }
 
 .collection-status.pending {
     background: #fff7e6;
     color: #b7791f;
+}
+
+.collection-status.pending.undated {
+    background: var(--surface-soft);
+    color: var(--muted);
 }
 
 .collection-status.overdue {
@@ -387,6 +476,70 @@
     margin-top: 22px;
 }
 
+.collection-paid-modal {
+    border-color: rgba(25, 169, 116, .24);
+}
+
+.collection-paid-icon {
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+}
+
+.collection-payment-summary {
+    display: grid;
+    gap: 0;
+    margin-top: 17px;
+    padding: 4px 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface-soft);
+    text-align: left;
+}
+
+.collection-payment-summary > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 0;
+    font-size: 12px;
+}
+
+.collection-payment-summary > div + div {
+    border-top: 1px solid var(--border);
+}
+
+.collection-payment-summary span {
+    color: var(--muted);
+}
+
+.collection-payment-summary strong {
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+}
+
+.collection-payment-final-note {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.collection-payment-final-note[hidden] {
+    display: none;
+}
+
+.collection-paid-modal .interaction-delete-actions {
+    flex-wrap: wrap;
+}
+
+.collection-paid-modal .interaction-delete-actions button {
+    min-height: 40px;
+}
+
 /* =========================================================
    DARK MODE
 ========================================================= */
@@ -415,6 +568,22 @@ body.dark .collection-status.completed {
     background: #173b2e;
     color: #54c797;
 }
+
+body.dark .collection-installment-badge {
+    border-color: #275341;
+    background: #173027;
+    color: #54c797;
+    box-shadow: none;
+}
+
+body.dark .collection-installment-track {
+    background: rgba(84, 199, 151, .2);
+}
+
+body.dark .collection-installment-track > span {
+    background: #54c797;
+}
+
 
 /* =========================================================
    RESPONSIVE

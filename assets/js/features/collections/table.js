@@ -68,6 +68,8 @@ function renderCollections() {
     }
 
     if (!filtered.length) {
+        getListPage("collectionList", "empty", filtered);
+        updateListPager("collectionList", 0, renderCollections);
         list.innerHTML = `
             <div class="collection-empty">
                 <div class="collection-empty-icon">📋</div>
@@ -78,12 +80,20 @@ function renderCollections() {
         return;
     }
 
-    list.innerHTML = filtered.map(item => {
+    const visible = getListPage("collectionList", [
+        getCollectionSearchElement()?.value || "",
+        document.getElementById("collectionProductFilter")?.value || "all",
+        document.getElementById("collectionStatusFilter")?.value || "all",
+        document.getElementById("collectionDateFilter")?.value || "all",
+        getCollectionPaymentMethodElement()?.value || "all"
+    ].join("|"), filtered);
+    updateListPager("collectionList", filtered.length, renderCollections);
+
+    list.innerHTML = visible.map(item => {
         const status = getCollectionStatus(item);
-        const statusText = getCollectionStatusText(status);
-        const current = Number(item.currentInstallment || 1);
-        const count = Number(item.installmentCount || 1);
         const completed = status === "completed";
+        const countdown = getCollectionCountdown(item);
+        const installment = getCollectionInstallmentProgress(item);
 
         const customerName =
             item.customerName || item.customer || item.name || "İsimsiz";
@@ -93,10 +103,6 @@ function renderCollections() {
         const product = item.product || "Diğer";
         const policyNumber =
             item.policyNumber || item.policyNo || item.policy || "—";
-
-        const installmentText = completed
-            ? "Tamamlandı"
-            : `${current}/${count}`;
 
         const paymentDate = completed
             ? "—"
@@ -164,7 +170,16 @@ function renderCollections() {
 
                 <!-- TAKSİT -->
                 <div class="collection-installment">
-                    ${installmentText}
+                    <div class="collection-installment-badge ${completed ? "is-complete" : ""}"
+                        title="${installment.paid}/${installment.total} taksit tahsil edildi"
+                        aria-label="${installment.current}/${installment.total} taksit, ${installment.paid} taksit tahsil edildi">
+                        <div class="collection-installment-numbers">
+                            <strong>${installment.current}</strong><span>/${installment.total}</span>
+                        </div>
+                        <span class="collection-installment-track" aria-hidden="true">
+                            <span style="width: ${installment.percent}%"></span>
+                        </span>
+                    </div>
                 </div>
 
                 <!-- TAHSİLAT TARİHİ -->
@@ -179,8 +194,8 @@ function renderCollections() {
 
                 <!-- DURUM -->
                 <div>
-                    <span class="collection-status ${status}">
-                        ${statusText}
+                    <span class="collection-status ${status} ${countdown.tone}">
+                        ${collectionEscape(countdown.text)}
                     </span>
                 </div>
 

@@ -4,7 +4,7 @@
 
 let customers = [];
 let selectedCustomerId = null;
-let currentFollowupFilter = "today";
+let currentFollowupFilter = "agenda";
 let activeAvatarColorCustomerId = null;
 let activeAvatarColorTarget = null;
 let renewals = [];
@@ -25,4 +25,3 @@ const followupList = $("followupList");
 const followupEmpty = $("followupEmpty");
 const allInteractionList = $("allInteractionList");
 const interactionPageEmpty = $("interactionPageEmpty");
-

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SORBİ CRM</title>
+    <title>Sorbi Sigorta CRM</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <meta name="theme-color" content="#19a974" />
     <link rel="stylesheet" href="assets/css/base.css" />
@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="assets/css/forms.css" />
     <link rel="stylesheet" href="assets/css/customers.css" />
     <link rel="stylesheet" href="assets/css/followups.css" />
+    <link rel="stylesheet" href="assets/css/reminders.css" />
     <link rel="stylesheet" href="assets/css/interactions.css" />
     <link rel="stylesheet" href="assets/css/renewals.css" />
     <link rel="stylesheet" href="assets/css/collections.css" />
@@ -63,9 +64,25 @@
           <span>💳</span>
           <span>Tahsilat Takip</span>
         </button>
+
+        <button class="menu-link" data-page="riskTracking" type="button">
+          <span>🛡️</span>
+          <span>Risk Takip</span>
+        </button>
       </nav>
 
       <div class="sidebar-bottom">
+        <button
+          id="settingsButton"
+          class="sidebar-button"
+          type="button"
+          aria-haspopup="dialog"
+          aria-controls="settingsModal"
+        >
+          <span aria-hidden="true">⚙</span>
+          <span>Ayarlar</span>
+        </button>
+
         <button
           id="themeToggle"
           class="sidebar-button"
@@ -75,13 +92,10 @@
           ☾
         </button>
 
-        <button
-          id="logoutButton"
-          class="sidebar-button logout-button"
-          type="button"
-        >
-          ↪ Çıkış
-        </button>
+      </div>
+      <div class="sidebar-version" aria-label="Uygulama sürümü v.1.7.18">
+        <span>Sürüm</span>
+        <strong>v.1.7.18</strong>
       </div>
     </aside>
 
@@ -173,6 +187,14 @@
 
               <option value="ÖSS">ÖSS</option>
 
+              <option value="DASK">DASK</option>
+
+              <option value="TRAFİK">TRAFİK</option>
+
+              <option value="KASKO">KASKO</option>
+
+              <option value="FERDİ KAZA">FERDİ KAZA</option>
+
               <option value="Diğer">Diğer</option>
             </select>
 
@@ -186,6 +208,10 @@
               <option value="tomorrow">Yarın</option>
 
               <option value="week">Bu Hafta</option>
+
+              <option value="thisMonth">Bu Ay</option>
+
+              <optgroup id="dateFilterMonths" label="Aylara Göre"></optgroup>
             </select>
 
             <button id="clearFilters" class="secondary-button" type="button">
@@ -208,6 +234,7 @@
           <!-- CUSTOMER LIST -->
 
           <div id="customerList"></div>
+          <button id="customerListPager" class="list-pager" type="button" hidden></button>
 
           <div id="emptyState" class="empty-state hidden">
             Filtrelere uygun müşteri bulunamadı.
@@ -243,6 +270,14 @@
             <div class="followup-filters">
               <button
                 class="followup-filter active"
+                data-followup-filter="agenda"
+                type="button"
+              >
+                Öncelikli
+              </button>
+
+              <button
+                class="followup-filter"
                 data-followup-filter="today"
                 type="button"
               >
@@ -286,6 +321,7 @@
           <!-- FOLLOWUP LIST -->
 
           <div id="followupList" class="followup-list"></div>
+          <button id="followupListPager" class="list-pager" type="button" hidden></button>
 
           <div id="followupEmpty" class="empty-state hidden">
             Bu filtrede takip bulunmuyor.
@@ -361,6 +397,14 @@
 
               <option value="ÖSS">ÖSS</option>
 
+              <option value="DASK">DASK</option>
+
+              <option value="TRAFİK">TRAFİK</option>
+
+              <option value="KASKO">KASKO</option>
+
+              <option value="FERDİ KAZA">FERDİ KAZA</option>
+
               <option value="Diğer">Diğer</option>
             </select>
 
@@ -398,6 +442,7 @@
           </div>
 
           <div id="renewalList" class="renewal-list"></div>
+          <button id="renewalListPager" class="list-pager" type="button" hidden></button>
 
           <div id="renewalEmpty" class="empty-state hidden">
             Yaklaşan yenileme bulunamadı.
@@ -532,9 +577,13 @@
 
               <option value="ÖSS">ÖSS</option>
 
-              <option value="Kasko">Kasko</option>
-
               <option value="DASK">DASK</option>
+
+              <option value="TRAFİK">TRAFİK</option>
+
+              <option value="KASKO">KASKO</option>
+
+              <option value="FERDİ KAZA">FERDİ KAZA</option>
 
               <option value="Diğer">Diğer</option>
             </select>
@@ -542,7 +591,7 @@
             <select id="collectionStatusFilter">
               <option value="all">Tüm Durumlar</option>
 
-              <option value="pending">Bekliyor</option>
+              <option value="pending">Gecikmemiş</option>
 
               <option value="completed">Tamamlandı</option>
 
@@ -611,6 +660,7 @@
         ================================================== -->
 
           <div id="collectionList" class="collection-list"></div>
+          <button id="collectionListPager" class="list-pager" type="button" hidden></button>
 
           <!-- =================================================
              EMPTY STATE
@@ -636,12 +686,46 @@
             </div>
           </div>
 
+          <div class="interaction-filters" role="search" aria-label="Görüşmeleri filtrele">
+            <label class="interaction-search-field">
+              <span class="sr-only">Müşteri, telefon, TC veya görüşme notu ara</span>
+              <input id="interactionSearchInput" type="search" placeholder="Müşteri, telefon, TC veya not ara..." autocomplete="off" />
+            </label>
+            <label>
+              <span class="sr-only">Görüşme türü</span>
+              <select id="interactionTypeFilter">
+                <option value="all">Tüm Görüşme Türleri</option>
+              </select>
+            </label>
+            <label>
+              <span class="sr-only">Görüşme zamanı</span>
+              <select id="interactionDateFilter">
+                <option value="all">Tüm Zamanlar</option>
+                <option value="today">Bugün</option>
+                <option value="last7">Son 7 Gün</option>
+                <option value="thisMonth">Bu Ay</option>
+              </select>
+            </label>
+            <button id="clearInteractionFilters" class="secondary-button" type="button" hidden>Filtreleri Temizle</button>
+          </div>
+
           <div id="allInteractionList" class="interaction-list"></div>
+          <button id="allInteractionListPager" class="list-pager" type="button" hidden></button>
 
           <div id="interactionPageEmpty" class="empty-state hidden">
             Henüz görüşme kaydı bulunmuyor.
           </div>
         </div>
+      </section>
+
+      <section id="riskTrackingPage" class="page-section hidden-page" aria-label="Risk Takip">
+        <iframe
+          id="riskTrackingFrame"
+          class="risk-tracking-frame"
+          src="assets/risk-tracking/index.html"
+          title="Risk Takip kayıtları"
+          loading="lazy"
+        ></iframe>
       </section>
     </main>
 
@@ -650,15 +734,13 @@
     ====================================================== -->
 
     <div id="customerModal" class="modal-overlay">
-      <div class="modal">
+      <div class="modal customer-modal">
         <div class="modal-header">
           <div>
-            <span class="eyebrow"> MÜŞTERİ </span>
-
             <h2 id="modalTitle">Yeni Müşteri</h2>
           </div>
 
-          <button id="closeCustomerModal" class="modal-close" type="button">
+          <button id="closeCustomerModal" class="modal-close" type="button" aria-label="Kapat">
             ×
           </button>
         </div>
@@ -666,7 +748,11 @@
         <form id="customerForm">
           <input id="customerId" type="hidden" />
 
-          <div class="form-grid">
+          <section class="customer-form-section" aria-labelledby="customerIdentityHeading">
+            <div class="customer-form-section-heading">
+              <h3 id="customerIdentityHeading">Kişi bilgileri</h3>
+            </div>
+            <div class="form-grid">
             <label>
               Ad Soyad
 
@@ -674,7 +760,7 @@
                 id="customerName"
                 required
                 type="text"
-                placeholder="Ad Soyad"
+                placeholder="Örn. Ayşe Yılmaz"
               />
             </label>
 
@@ -688,8 +774,8 @@
               />
             </label>
 
-            <label>
-              TC Kimlik No
+            <div class="customer-tc-field">
+              <div class="customer-tc-heading"><label for="customerTc">TC Kimlik No</label><button id="addInsuredPersonButton" class="add-insured-button" type="button" title="Aile üyesi / sigortalı ekle" aria-label="Aile üyesi / sigortalı ekle">＋</button></div>
 
               <input
                 id="customerTc"
@@ -698,6 +784,11 @@
                 maxlength="11"
                 placeholder="11 haneli TC"
               />
+            </div>
+
+            <label>
+              Doğum Tarihi
+              <input id="customerBirthDate" type="date" />
             </label>
 
             <label>
@@ -708,9 +799,27 @@
 
                 <option value="ÖSS">ÖSS</option>
 
+                <option value="DASK">DASK</option>
+
+                <option value="TRAFİK">TRAFİK</option>
+
+                <option value="KASKO">KASKO</option>
+
+                <option value="FERDİ KAZA">FERDİ KAZA</option>
+
                 <option value="Diğer">Diğer</option>
               </select>
             </label>
+
+            <div id="insuredPersonsFields" class="insured-persons-fields full-width" aria-live="polite"></div>
+            </div>
+          </section>
+
+          <section class="customer-form-section" aria-labelledby="customerFollowupHeading">
+            <div class="customer-form-section-heading">
+              <h3 id="customerFollowupHeading">Takip ve hatırlatmalar</h3>
+            </div>
+            <div class="form-grid">
 
             <label>
               Durum
@@ -724,8 +833,27 @@
               <input id="nextActionDate" type="date" />
             </label>
 
+            <div class="reminder-time-field">
+              <label for="nextActionTime">
+                İlk Hatırlatma Saati
+                <span class="optional-field-note">İsteğe bağlı · takip tarihi seçildiğinde çalışır</span>
+              </label>
+              <input id="nextActionTime" type="time" />
+              <span id="primaryReminderState" class="reminder-form-state"></span>
+              <button id="addReminderTime" class="secondary-button reminder-add-button" type="button" disabled>＋ Hatırlatma saati ekle</button>
+            </div>
+
+            <div id="additionalReminderTimes" class="additional-reminder-times full-width"></div>
+            </div>
+          </section>
+
+          <section class="customer-form-section" aria-labelledby="customerNoteHeading">
+            <div class="customer-form-section-heading">
+              <h3 id="customerNoteHeading">Notlar</h3>
+            </div>
+            <div class="form-grid">
             <label class="full-width">
-              Not
+              Müşteri Notu
 
               <textarea
                 id="customerNote"
@@ -733,7 +861,8 @@
                 placeholder="Müşteriyle ilgili not..."
               ></textarea>
             </label>
-          </div>
+            </div>
+          </section>
 
           <div class="modal-actions">
             <button type="button" id="cancelCustomer" class="secondary-button">
@@ -796,12 +925,25 @@
             <!-- ÜRÜN -->
 
             <label>
+              Sigortalı TC Kimlik No
+              <input id="renewalCustomerTc" type="text" inputmode="numeric" maxlength="11" placeholder="Varsa 11 haneli TC" />
+            </label>
+
+            <label>
               Ürün
 
               <select id="renewalProduct">
                 <option value="TSS">TSS</option>
 
                 <option value="ÖSS">ÖSS</option>
+
+                <option value="DASK">DASK</option>
+
+                <option value="TRAFİK">TRAFİK</option>
+
+                <option value="KASKO">KASKO</option>
+
+                <option value="FERDİ KAZA">FERDİ KAZA</option>
 
                 <option value="Diğer">Diğer</option>
               </select>
@@ -884,12 +1026,10 @@
     ====================================================== -->
 
     <div id="detailOverlay" class="modal-overlay">
-      <div class="modal detail-modal">
+      <div class="modal detail-modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
         <div class="modal-header">
           <div>
-            <span class="eyebrow"> MÜŞTERİ DETAYI </span>
-
-            <h2 id="detailName">Müşteri</h2>
+            <h2 id="detailTitle">Müşteri Detayı</h2>
           </div>
 
           <button id="closeDetail" class="modal-close" type="button">×</button>
@@ -934,6 +1074,16 @@
             <span>Kaydedilme Tarihi</span>
             <strong id="detailCreatedAt">-</strong>
           </div>
+        </div>
+
+        <div class="detail-insured">
+          <h3>Sigortalılar</h3>
+          <div id="detailInsuredList"></div>
+        </div>
+
+        <div class="detail-followup-history">
+          <h3>Takip Geçmişi</h3>
+          <div id="detailFollowupHistory"></div>
         </div>
 
         <!-- NOTE -->
@@ -1010,6 +1160,22 @@
             ></textarea>
           </label>
 
+          <div id="interactionFollowupPanel" class="interaction-followup-panel" hidden>
+            <label>
+              Görüşme Sonrası
+              <select id="interactionFollowupOutcome">
+                <option value="reschedule">Yeni takip planla</option>
+                <option value="complete">Takibi tamamla</option>
+                <option value="keep">Mevcut takip tarihini koru</option>
+              </select>
+            </label>
+            <div id="interactionNextActionFields" class="interaction-next-action-fields">
+              <label>Yeni Takip Tarihi <input id="interactionNextActionDate" type="date" /></label>
+              <label>Hatırlatma Saati (isteğe bağlı) <input id="interactionNextActionTime" type="time" /></label>
+            </div>
+            <p>Yeni takip planlandığında eski ek hatırlatmalar temizlenir.</p>
+          </div>
+
           <div class="modal-actions">
             <button
               type="button"
@@ -1024,6 +1190,75 @@
         </form>
       </div>
     </div>
+
+    <div id="settingsModal" class="modal-overlay">
+      <div class="modal small-modal settings-modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <div class="modal-header">
+          <div>
+            <button id="backToSettings" class="settings-back-button" type="button" hidden aria-label="Ayarlara geri dön">← Ayarlar</button>
+            <span class="eyebrow">TERCİHLER</span>
+            <h2 id="settingsTitle">Ayarlar</h2>
+          </div>
+          <button id="closeSettings" class="modal-close" type="button" aria-label="Ayarları kapat">×</button>
+        </div>
+
+        <div id="settingsHomeView" class="settings-view">
+          <button id="openSoundSettings" class="settings-navigation-button" type="button" aria-controls="settingsSoundView">
+            <span><strong>Ses Ayarları</strong><small>Ses seçimi, tekrar sayısı ve ses düzeyi</small></span>
+            <span class="settings-navigation-arrow" aria-hidden="true">›</span>
+          </button>
+          <button id="openNotificationSettings" class="settings-navigation-button" type="button" aria-controls="settingsNotificationView">
+            <span><strong>Bildirimler</strong><small>Takip hatırlatmalarını göster veya kapat</small></span>
+            <span class="settings-navigation-arrow" aria-hidden="true">›</span>
+          </button>
+        </div>
+
+        <section id="settingsNotificationView" class="settings-section settings-view settings-subview" aria-label="Bildirimler" hidden>
+          <p>Takip saati geldiğinde sağ altta hatırlatıcı gösterilir. Bu ayarlar yalnızca bu tarayıcıda saklanır.</p>
+          <label class="settings-toggle-row" for="notificationsEnabled">
+            <span><strong>Bildirimleri göster</strong><small>Kapalıyken hatırlatıcılar görünmez ve ses çalmaz.</small></span>
+            <input id="notificationsEnabled" type="checkbox" checked />
+          </label>
+        </section>
+
+        <section id="settingsSoundView" class="settings-section settings-sound-section settings-view" aria-label="Ses Ayarları" hidden>
+          <p>Hatırlatıcı sesini, kaç kez çalacağını ve düzeyini buradan ayarlayabilirsin.</p>
+
+          <label class="settings-toggle-row" for="reminderSoundEnabled">
+            <span><strong>Hatırlatıcı sesi</strong><small>Bildirim geldiğinde kısa bir ses çal.</small></span>
+            <input id="reminderSoundEnabled" type="checkbox" checked />
+          </label>
+
+          <div class="settings-sound-choice">
+            <label for="reminderSoundChoice">Bildirim sesi</label>
+            <select id="reminderSoundChoice">
+              <option value="classic">Klasik</option>
+              <option value="chime">Yumuşak zil</option>
+            </select>
+          </div>
+
+          <div class="settings-sound-choice">
+            <label for="reminderSoundRepeats">Tekrar sayısı</label>
+            <select id="reminderSoundRepeats">
+              <option value="1">1 kez</option>
+              <option value="2">2 kez</option>
+              <option value="3">3 kez</option>
+              <option value="4">4 kez</option>
+              <option value="5">5 kez</option>
+            </select>
+            <small>Her bildirim geldiğinde seçilen ses bu kadar kez art arda çalar.</small>
+          </div>
+
+          <div class="settings-volume">
+            <label for="reminderSoundVolume">Ses düzeyi <output id="reminderSoundVolumeValue" for="reminderSoundVolume">60%</output></label>
+            <input id="reminderSoundVolume" type="range" min="0" max="100" step="5" value="60" />
+            <button id="previewReminderSound" class="secondary-button" type="button">Sesi dene</button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div id="reminderNotifications" class="reminder-notifications" aria-live="polite" aria-label="Takip hatırlatıcıları"></div>
 
     <!-- =====================================================
          JAVASCRIPT
@@ -1044,6 +1279,7 @@
     <!-- FEATURES -->
     <script src="assets/js/features/customers/list.js"></script>
     <script src="assets/js/features/followups.js"></script>
+    <script src="assets/js/features/reminders.js"></script>
     <script src="assets/js/features/customers/crud.js"></script>
     <script src="assets/js/features/interactions.js"></script>
     <script src="assets/js/features/renewals/list.js"></script>
@@ -1059,6 +1295,7 @@
     <!-- UI / INTEGRATIONS -->
     <script src="assets/js/ui/theme-events.js"></script>
     <script src="assets/js/integrations/supabase-customers.js"></script>
+    <script src="assets/js/integrations/risk-tracking-bridge.js"></script>
 
     <!-- BOOTSTRAP -->
     <script src="assets/js/app.js"></script>

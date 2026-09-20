@@ -187,7 +187,7 @@ function initCollectionModule() {
     }
 
 
-    loadCollectionData();
+    if (loadCollectionData() === false) return false;
 
     createCollectionModal();
 
@@ -198,8 +198,6 @@ function initCollectionModule() {
     setupCollectionAddButton();
 
     setupCollectionFilters();
-
-    renderCollections();
 
     collectionModuleInitialized =
         true;
@@ -233,5 +231,3 @@ window.openCollectionModal =
 
 window.closeCollectionModal =
     closeCollectionModal;
-
-

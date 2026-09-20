@@ -165,6 +165,8 @@ function getFilteredCollections() {
 
     result.sort((a, b) => {
 
+        if (!a.nextPaymentDate && !b.nextPaymentDate) return 0;
+
         if (!a.nextPaymentDate) return 1;
 
         if (!b.nextPaymentDate) return -1;
@@ -325,5 +327,4 @@ function updateCollectionSummary() {
             `${collections.length} kayıt`;
     }
 }
-
 

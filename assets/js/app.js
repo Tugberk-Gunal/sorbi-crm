@@ -4,13 +4,18 @@
 ========================================================= */
 
 function renderAll() {
-    renderCustomers();
-    renderFollowups();
-    renderAllInteractions();
-    renderRenewals();
-
-    if (typeof renderCollections === "function") {
+    const activePage = document.querySelector(".page-section:not(.hidden-page)")?.id;
+    if (activePage === "customersPage") renderCustomers();
+    else updateSummary();
+    if (activePage === "followupsPage") renderFollowups();
+    if (activePage === "interactionsPage") renderAllInteractions();
+    if (activePage === "renewalsPage") renderRenewals();
+    if (activePage === "collectionsPage" && typeof renderCollections === "function") {
         renderCollections();
+    }
+
+    if (typeof checkReminders === "function") {
+        checkReminders();
     }
 }
 
@@ -22,12 +27,12 @@ async function initApp() {
     setupFollowupFilters();
     setupFollowupActions();
     setupInteractionPageActions();
+    setupInteractionFilters();
     setupCustomerForm();
     setupInteractionEvents();
     setupTheme();
     setupModalEvents();
     setupFilters();
-    setupLogout();
     setupRenewalForm();
     setupRenewalActions();
     setupRenewalFilters();
@@ -54,12 +59,12 @@ async function initApp() {
     }
 
     if (!loadedFromSupabase) {
-        loadLocalData();
+        if (loadLocalData() === false) return;
     }
 
-    loadRenewalData();
+    if (loadRenewalData() === false) return;
     normalizeCustomers();
-    saveLocalData();
+    if (!saveLocalData()) return;
 
     /*
      * Tahsilat modülü müşteriler yüklendikten sonra başlatılır.
@@ -67,18 +72,25 @@ async function initApp() {
      * ile eşleştirilebilir.
      */
     if (typeof initCollectionModule === "function") {
-        initCollectionModule();
+        if (initCollectionModule() === false) return;
     }
 
     renderAll();
+    setupReminderNotifications();
     switchPage("customers");
 
     updateCurrentDateTime();
     updateFollowupDateTime();
 
+    let lastRenderedDay = getToday();
     setInterval(() => {
         updateCurrentDateTime();
         updateFollowupDateTime();
+        const today = getToday();
+        if (today !== lastRenderedDay) {
+            lastRenderedDay = today;
+            renderAll();
+        }
     }, 1000);
 }
 

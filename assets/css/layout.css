@@ -134,6 +134,23 @@
     justify-content: flex-start;
 }
 
+.sidebar-version {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 13px 0;
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: .02em;
+    white-space: nowrap;
+}
+
+.sidebar-version strong {
+    color: var(--text);
+    font-size: 10px;
+    font-weight: 700;
+}
+
 .logout-button {
     color: var(--danger);
 }
@@ -153,6 +170,47 @@
     min-height: 100vh;
 
     padding: 32px;
+}
+
+.risk-tracking-frame {
+    display: block;
+    width: 100%;
+    min-height: 830px;
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
+
+.storage-failure-banner {
+    position: fixed;
+    z-index: 10000;
+    top: 12px;
+    left: 50%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: min(760px, calc(100% - 24px));
+    padding: 13px 16px;
+    border: 1px solid #d99018;
+    border-radius: 10px;
+    background: #fff6e4;
+    color: #563600;
+    box-shadow: 0 12px 32px #1822302e;
+    transform: translateX(-50%);
+}
+.storage-failure-banner button {
+    flex: none;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 7px;
+    background: #563600;
+    color: #fff;
+    cursor: pointer;
+}
+.storage-failure-banner button:disabled { opacity: .5; cursor: not-allowed; }
+@media (max-width: 600px) {
+    .storage-failure-banner { flex-direction: column; align-items: stretch; }
 }
 
 /* =========================================================

@@ -3,6 +3,8 @@
 ========================================================= */
 
 let pendingRenewalOfferCustomerId = null;
+let pendingRenewalOfferPersonId = null;
+let renewalOfferQueue = [];
 
 function ensureRenewalOfferModal() {
     let overlay = $("renewalOfferModal");
@@ -59,22 +61,26 @@ function ensureRenewalOfferModal() {
 function closeRenewalOfferModal() {
     $("renewalOfferModal")?.classList.remove("show");
     pendingRenewalOfferCustomerId = null;
+    pendingRenewalOfferPersonId = null;
+    showNextRenewalOffer();
 }
 
 function confirmRenewalOffer() {
     const customer = customers.find(
         item => String(item.id) === String(pendingRenewalOfferCustomerId)
     );
+    const person = customer && getCustomerInsuredPersons(customer)
+        .find(item => String(item.id) === String(pendingRenewalOfferPersonId));
 
     $("renewalOfferModal")?.classList.remove("show");
     pendingRenewalOfferCustomerId = null;
+    pendingRenewalOfferPersonId = null;
 
-    if (!customer || findExistingRenewalForCustomer(customer)) {
-        return;
+    if (customer && person && !findExistingRenewalForCustomer(customer, person)) {
+        createRenewalFromCustomer(customer, person);
+        renderRenewals();
     }
-
-    createRenewalFromCustomer(customer);
-    renderRenewals();
+    showNextRenewalOffer();
 }
 
 function addYearsToDateInput(dateString, years = 1) {
@@ -99,35 +105,49 @@ function addYearsToDateInput(dateString, years = 1) {
 }
 
 function findCustomerForRenewalData(data) {
+    const tc = String(data.tc || "").trim();
+    if (tc) {
+        const matches = customers.filter(customer =>
+            getCustomerInsuredPersons(customer).some(person => person.tc === tc));
+        return matches.length === 1 ? matches[0] : null;
+    }
     const phone = normalizePhone(data.customerPhone);
     const name = normalizeIdentityText(data.customerName);
-
-    return customers.find(customer => {
-        if (
-            data.customerId &&
-            String(customer.id) === String(data.customerId)
-        ) {
-            return true;
-        }
-
-        const sameName =
-            name && normalizeIdentityText(customer.name) === name;
-
-        const samePhone =
-            phone && normalizePhone(customer.phone) === phone;
-
-        return sameName && (!phone || samePhone);
-    }) || null;
+    if (!name || !phone) return null;
+    const matches = customers.filter(customer =>
+        normalizeIdentityText(customer.name) === name &&
+        normalizePhone(customer.phone) === phone);
+    return matches.length === 1 ? matches[0] : null;
 }
 
-function findExistingRenewalForCustomer(customer) {
+function resolveRenewalCustomerForEdit(previous, data) {
+    const unchanged = previous &&
+        normalizeIdentityText(data.customerName) === normalizeIdentityText(previous.customerName) &&
+        normalizePhone(data.customerPhone) === normalizePhone(previous.customerPhone) &&
+        String(data.tc || "").trim() === String(previous.tc || "").trim();
+    const linkedCustomer = (unchanged && previous.customerId && customers.find(customer =>
+        String(customer.id) === String(previous.customerId))) ||
+        findCustomerForRenewalData(data);
+    const linkedPerson = linkedCustomer && (
+        (unchanged && previous.insuredPersonId &&
+            getCustomerInsuredPersons(linkedCustomer).find(person =>
+                String(person.id) === String(previous.insuredPersonId))) ||
+        (data.tc && getCustomerInsuredPersons(linkedCustomer).find(person => person.tc === data.tc))
+    );
+    return { linkedCustomer, linkedPerson };
+}
+
+function findExistingRenewalForCustomer(customer, person = null) {
     if (!customer) {
         return null;
     }
-
-    if (customer.renewalId) {
+    person = person || getCustomerInsuredPersons(customer)[0];
+    if (person.primary && customer.renewalId) {
         const byLinkedId = renewals.find(
-            renewal => String(renewal.id) === String(customer.renewalId)
+            renewal => String(renewal.id) === String(customer.renewalId) &&
+                String(renewal.customerId || "") === String(customer.id) &&
+                renewal.product === person.product &&
+                (!renewal.tc || renewal.tc === person.tc)
         );
 
         if (byLinkedId) {
@@ -135,27 +155,14 @@ function findExistingRenewalForCustomer(customer) {
         }
     }
 
-    return renewals.find(renewal => {
-        if (
-            renewal.customerId &&
-            String(renewal.customerId) === String(customer.id)
-        ) {
-            return true;
-        }
-
-        const sameName =
-            normalizeIdentityText(renewal.customerName) ===
-            normalizeIdentityText(customer.name);
-
-        const renewalPhone = normalizePhone(renewal.customerPhone);
-        const customerPhone = normalizePhone(customer.phone);
-        const samePhone =
-            renewalPhone && customerPhone
-                ? renewalPhone === customerPhone
-                : true;
-
-        return sameName && samePhone;
-    }) || null;
+    return renewals.find(renewal => renewal.product === person.product && (
+        (renewal.insuredPersonId && String(renewal.insuredPersonId) === String(person.id)) ||
+        (person.tc && renewal.tc === person.tc &&
+            String(renewal.customerId || "") === String(customer.id)) ||
+        (person.primary && !person.tc && !renewal.tc &&
+            String(renewal.customerId || "") === String(customer.id) &&
+            !renewal.insuredPersonId)
+    )) || null;
 }
 
 
@@ -164,38 +171,39 @@ function syncLinkedRenewalFromCustomer(customer) {
         return;
     }
 
-    const renewal = findExistingRenewalForCustomer(customer);
-
-    if (!renewal) {
-        return;
+    let changed = false;
+    for (const person of getCustomerInsuredPersons(customer)) {
+        const renewal = findExistingRenewalForCustomer(customer, person);
+        if (!renewal) continue;
+        if (renewal.customerId !== customer.id || renewal.insuredPersonId !== person.id) {
+            renewal.customerId = customer.id;
+            renewal.insuredPersonId = person.id;
+            changed = true;
+        }
+        if (person.primary && customer.renewalId !== renewal.id) {
+            customer.renewalId = renewal.id;
+            changed = true;
+        }
     }
-
-    renewal.customerId = customer.id;
-    renewal.customerName = customer.name || renewal.customerName || "";
-    renewal.customerPhone = customer.phone || renewal.customerPhone || "";
-    renewal.product = customer.product || renewal.product || "TSS";
-
-    if (isValidAvatarColor(customer.avatarColor)) {
-        renewal.avatarColor = customer.avatarColor;
+    if (changed) {
+        saveRenewalData();
+        saveLocalData();
     }
-
-    customer.renewalId = renewal.id;
-    renewal.updatedAt = new Date().toISOString();
-
-    saveRenewalData();
-    saveLocalData();
 }
 
-function createRenewalFromCustomer(customer) {
+function createRenewalFromCustomer(customer, person = null) {
     if (!customer) {
         return null;
     }
 
-    const existing = findExistingRenewalForCustomer(customer);
+    person = person || getCustomerInsuredPersons(customer)[0];
+    const existing = findExistingRenewalForCustomer(customer, person);
 
     if (existing) {
-        customer.renewalId = existing.id;
-        saveLocalData();
+        if (person.primary) {
+            customer.renewalId = existing.id;
+            saveLocalData();
+        }
         return existing;
     }
 
@@ -206,9 +214,11 @@ function createRenewalFromCustomer(customer) {
     const renewal = {
         id: crypto.randomUUID(),
         customerId: customer.id,
-        customerName: customer.name || "",
+        insuredPersonId: person.id,
+        customerName: person.name || customer.name || "",
         customerPhone: customer.phone || "",
-        product: customer.product || "TSS",
+        tc: person.tc || "",
+        product: person.product || "TSS",
         policyNumber: "",
         startDate,
         renewalDate,
@@ -223,7 +233,7 @@ function createRenewalFromCustomer(customer) {
     };
 
     renewals.unshift(renewal);
-    customer.renewalId = renewal.id;
+    if (person.primary) customer.renewalId = renewal.id;
 
     saveRenewalData();
     saveLocalData();
@@ -231,23 +241,40 @@ function createRenewalFromCustomer(customer) {
     return renewal;
 }
 
-function maybeOfferRenewalForCustomer(customer) {
-    if (!customer || customer.status !== "Poliçeleşti") {
+function maybeOfferRenewalForCustomer(customer, person = null) {
+    if (!customer) {
         return false;
     }
-
-    if (findExistingRenewalForCustomer(customer)) {
+    person = person || getCustomerInsuredPersons(customer)[0];
+    if (person.status !== "Poliçeleşti" ||
+        findExistingRenewalForCustomer(customer, person)) {
         return false;
     }
 
     pendingRenewalOfferCustomerId = customer.id;
+    pendingRenewalOfferPersonId = person.id;
 
     const overlay = ensureRenewalOfferModal();
-    $("renewalOfferCustomer").textContent = customer.name || "Bu müşteri";
+    $("renewalOfferCustomer").textContent = person.name || customer.name || "Bu müşteri";
     overlay.classList.add("show");
 
     requestAnimationFrame(() => $("confirmRenewalOffer")?.focus());
     return true;
+}
+
+function showNextRenewalOffer() {
+    while (renewalOfferQueue.length) {
+        const next = renewalOfferQueue.shift();
+        const customer = customers.find(item => String(item.id) === String(next.customerId));
+        const person = customer && getCustomerInsuredPersons(customer)
+            .find(item => String(item.id) === String(next.personId));
+        if (customer && person && maybeOfferRenewalForCustomer(customer, person)) return;
+    }
+}
+
+function queueRenewalOffersForCustomer(customer, personIds) {
+    renewalOfferQueue.push(...personIds.map(personId => ({ customerId: customer.id, personId })));
+    if (!pendingRenewalOfferCustomerId) showNextRenewalOffer();
 }
 
 function openRenewalModal(renewal = null) {
@@ -261,6 +288,7 @@ function openRenewalModal(renewal = null) {
         $("renewalId").value = renewal.id;
         $("renewalCustomerName").value = renewal.customerName || "";
         $("renewalCustomerPhone").value = renewal.customerPhone || "";
+        $("renewalCustomerTc").value = renewal.tc || "";
         $("renewalProduct").value = renewal.product || "TSS";
         $("renewalPolicyNumber").value = renewal.policyNumber || "";
         $("renewalStartDate").value = renewal.startDate || "";
@@ -281,12 +309,28 @@ function closeRenewalModal() {
 }
 
 function setupRenewalForm() {
+    $("renewalCustomerTc")?.addEventListener("change", event => {
+        const tc = event.target.value.trim();
+        if (!tc) return;
+        const customer = findCustomerForRenewalData({ tc });
+        const person = customer && getCustomerInsuredPersons(customer)
+            .find(item => item.tc === tc);
+        if (!person) return;
+        $("renewalProduct").value = person.product;
+        if (!$("renewalCustomerName").value.trim()) {
+            $("renewalCustomerName").value = person.name || customer.name;
+        }
+        if (!$("renewalCustomerPhone").value.trim()) {
+            $("renewalCustomerPhone").value = customer.phone || "";
+        }
+    });
     $("renewalForm")?.addEventListener("submit", event => {
         event.preventDefault();
 
         const data = {
             customerName: $("renewalCustomerName").value.trim(),
             customerPhone: $("renewalCustomerPhone").value.trim(),
+            tc: $("renewalCustomerTc").value.trim(),
             product: $("renewalProduct").value,
             policyNumber: $("renewalPolicyNumber").value.trim(),
             startDate: $("renewalStartDate").value,
@@ -313,31 +357,49 @@ function setupRenewalForm() {
 
             if (index !== -1) {
                 const previous = renewals[index];
-                const linkedCustomer = findCustomerForRenewalData({
-                    ...previous,
-                    ...data
-                });
+                const { linkedCustomer, linkedPerson } =
+                    resolveRenewalCustomerForEdit(previous, data);
 
                 renewals[index] = {
                     ...previous,
                     ...data,
-                    customerId: previous.customerId || linkedCustomer?.id || null,
+                    customerId: linkedCustomer?.id || null,
+                    insuredPersonId: linkedPerson?.id || (linkedCustomer && !data.tc ? linkedCustomer.id : null),
                     avatarColor: previous.avatarColor || linkedCustomer?.avatarColor || DEFAULT_AVATAR_COLOR
                 };
+                if (previous.customerId && (previous.customerId !== renewals[index].customerId ||
+                    (previous.tc || "") !== data.tc)) {
+                    const oldCustomer = customers.find(customer =>
+                        String(customer.id) === String(previous.customerId));
+                    if (oldCustomer && String(oldCustomer.renewalId || "") === String(previous.id)) {
+                        oldCustomer.renewalId = null;
+                        saveLocalData();
+                    }
+                }
+                if (linkedCustomer && (!data.tc || linkedPerson?.primary) &&
+                    !linkedCustomer.renewalId) {
+                    linkedCustomer.renewalId = previous.id;
+                    saveLocalData();
+                }
             }
         } else {
             const linkedCustomer = findCustomerForRenewalData(data);
+            const linkedPerson = linkedCustomer && data.tc
+                ? getCustomerInsuredPersons(linkedCustomer).find(person => person.tc === data.tc)
+                : null;
             const renewal = {
                 id: crypto.randomUUID(),
                 ...data,
                 customerId: linkedCustomer?.id || null,
+                insuredPersonId: linkedPerson?.id || (linkedCustomer && !data.tc ? linkedCustomer.id : null),
                 avatarColor: linkedCustomer?.avatarColor || DEFAULT_AVATAR_COLOR,
                 createdAt: new Date().toISOString()
             };
 
             renewals.unshift(renewal);
 
-            if (linkedCustomer && !linkedCustomer.renewalId) {
+            if (linkedCustomer && !linkedCustomer.renewalId &&
+                (!data.tc || data.tc === linkedCustomer.tc)) {
                 linkedCustomer.renewalId = renewal.id;
                 saveLocalData();
             }
@@ -390,32 +452,62 @@ function deleteRenewal(id) {
 }
 
 function setupRenewalActions() {
-    $("renewalList")?.addEventListener("click", event => {
+    const list = $("renewalList");
+    list?.addEventListener("click", event => {
         const button = event.target.closest("[data-renewal-action]");
 
-        if (!button) {
+        if (button) {
+            const id = button.dataset.id;
+            const action = button.dataset.renewalAction;
+            if (action === "edit") editRenewal(id);
+            if (action === "delete") deleteRenewal(id);
             return;
         }
 
-        const id = button.dataset.id;
-        const action = button.dataset.renewalAction;
-
-        if (action === "edit") {
-            editRenewal(id);
-        }
-
-        if (action === "delete") {
-            deleteRenewal(id);
-        }
+        if (event.target.closest("[data-avatar-renewal]")) return;
+        const row = event.target.closest(".renewal-row-linked");
+        if (!row || !list.contains(row)) return;
+        const renewal = renewals.find(item => String(item.id) === String(row.dataset.renewalId));
+        const customer = getLinkedPolicyCustomerForRenewal(renewal);
+        if (customer) openCustomerDetail(customer.id);
+    });
+    list?.addEventListener("keydown", event => {
+        const row = event.target.closest(".renewal-row-linked");
+        if (event.target !== row || !["Enter", " "].includes(event.key)) return;
+        const renewal = renewals.find(item => String(item.id) === String(row.dataset.renewalId));
+        const customer = getLinkedPolicyCustomerForRenewal(renewal);
+        if (!customer) return;
+        event.preventDefault();
+        openCustomerDetail(customer.id);
     });
 }
 
+function getLinkedPolicyCustomerForRenewal(renewal) {
+    if (!renewal?.customerId) return null;
+    const customer = customers.find(item => String(item.id) === String(renewal.customerId));
+    if (!customer) return null;
+    if (renewal.autoCreated === true) return customer;
+
+    const persons = getCustomerInsuredPersons(customer);
+    const person = renewal.insuredPersonId
+        ? persons.find(item => String(item.id) === String(renewal.insuredPersonId))
+        : renewal.tc
+            ? persons.find(item => item.tc === renewal.tc)
+            : persons[0];
+    return person?.status === "Poliçeleşti" ? customer : null;
+}
+
 function setupRenewalFilters() {
-    $("renewalSearchInput")?.addEventListener("input", renderRenewals);
+    let searchTimer;
+    $("renewalSearchInput")?.addEventListener("input", () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(renderRenewals, 180);
+    });
     $("renewalProductFilter")?.addEventListener("change", renderRenewals);
     $("renewalDateFilter")?.addEventListener("change", renderRenewals);
 
     $("clearRenewalFilters")?.addEventListener("click", () => {
+        clearTimeout(searchTimer);
         $("renewalSearchInput").value = "";
         $("renewalProductFilter").value = "all";
         $("renewalDateFilter").value = "all";

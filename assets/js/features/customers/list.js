@@ -2,6 +2,42 @@
    CUSTOMER FILTERS
 ========================================================= */
 
+function getCustomerFollowupMonths() {
+    const counts = new Map();
+    customers.forEach(customer => {
+        const date = String(customer.nextActionDate || "");
+        if (!/^\d{4}-(0[1-9]|1[0-2])-\d{2}$/.test(date)) return;
+        const month = date.slice(0, 7);
+        counts.set(month, (counts.get(month) || 0) + 1);
+    });
+    return [...counts.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+}
+
+function populateCustomerDateFilterMonths() {
+    const select = $("dateFilter");
+    const group = $("dateFilterMonths");
+    if (!select || !group) return;
+    const selected = select.value;
+    const months = getCustomerFollowupMonths();
+    if (/^month:\d{4}-(0[1-9]|1[0-2])$/.test(selected) &&
+        !months.some(([month]) => `month:${month}` === selected)) {
+        months.push([selected.slice(6), 0]);
+        months.sort((a, b) => b[0].localeCompare(a[0]));
+    }
+    group.replaceChildren();
+    months.forEach(([month, count]) => {
+        const [year, monthNumber] = month.split("-").map(Number);
+        const label = new Intl.DateTimeFormat("tr-TR", {
+            month: "long", year: "numeric"
+        }).format(new Date(year, monthNumber - 1, 1));
+        const option = document.createElement("option");
+        option.value = `month:${month}`;
+        option.textContent = `${label.charAt(0).toLocaleUpperCase("tr-TR")}${label.slice(1)} (${count})`;
+        group.appendChild(option);
+    });
+    select.value = selected;
+}
+
 function getFilteredCustomers() {
     let result = [...customers];
 
@@ -38,12 +74,10 @@ function getFilteredCustomers() {
                         )
                             .toLowerCase();
 
-                    const tc =
-                        String(
-                            customer.tc ||
-                                ""
-                        )
-                            .toLowerCase();
+                    const insuredSearch = getCustomerInsuredPersons(customer)
+                        .map(person => `${person.name || ""} ${person.tc || ""}`)
+                        .join(" ")
+                        .toLowerCase();
 
                     return (
                         name.includes(
@@ -52,7 +86,7 @@ function getFilteredCustomers() {
                         phone.includes(
                             search
                         ) ||
-                        tc.includes(
+                        insuredSearch.includes(
                             search
                         )
                     );
@@ -64,8 +98,7 @@ function getFilteredCustomers() {
         result =
             result.filter(
                 (customer) =>
-                    customer.status ===
-                    status
+                    getCustomerStatuses(customer).includes(status)
             );
     }
 
@@ -73,8 +106,7 @@ function getFilteredCustomers() {
         result =
             result.filter(
                 (customer) =>
-                    customer.product ===
-                    product
+                    getCustomerProducts(customer).includes(product)
             );
     }
 
@@ -121,6 +153,15 @@ function getFilteredCustomers() {
                         );
                     }
 
+                    if (date === "thisMonth") {
+                        return customer.nextActionDate.slice(0, 7) ===
+                            getToday().slice(0, 7);
+                    }
+
+                    if (/^month:\d{4}-(0[1-9]|1[0-2])$/.test(date)) {
+                        return customer.nextActionDate.slice(0, 7) === date.slice(6);
+                    }
+
                     return true;
                 }
             );
@@ -138,6 +179,7 @@ function renderCustomers() {
         return;
     }
 
+    populateCustomerDateFilterMonths();
     const filtered =
         getFilteredCustomers();
 
@@ -155,7 +197,13 @@ function renderCustomers() {
         );
     }
 
-    filtered.forEach(
+    const visible = getListPage("customerList", [
+        $("searchInput").value, $("statusFilter").value,
+        $("productFilter").value, $("dateFilter").value
+    ].join("|"), filtered);
+    updateListPager("customerList", filtered.length, renderCustomers);
+
+    visible.forEach(
         (customer) => {
             const row =
                 document.createElement(
@@ -163,7 +211,11 @@ function renderCustomers() {
                 );
 
             row.className =
-                "customer-row";
+                `customer-row${customer.isHot ? " customer-row-hot" : ""}`;
+            row.dataset.id = customer.id;
+            row.tabIndex = 0;
+            row.setAttribute("role", "group");
+            row.setAttribute("aria-label", `${customer.name || "Müşteri"} detaylarını açmak için Enter tuşuna basın`);
 
             const overdue =
                 isOverdue(
@@ -174,6 +226,13 @@ function renderCustomers() {
                 isToday(
                     customer.nextActionDate
                 );
+
+            const extraCount = Array.isArray(customer.insuredPersons)
+                ? customer.insuredPersons.length
+                : 0;
+            const productBadges = getCustomerProducts(customer)
+                .map(item => `<span class="product-badge">${escapeHTML(item)}</span>`)
+                .join(" ");
 
             row.innerHTML = `
                 <div class="customer-main">
@@ -195,11 +254,25 @@ function renderCustomers() {
                         )}
                     </div>
 
-                    <div>
-                        <div class="customer-name">
-                            ${escapeHTML(
-                                customer.name
-                            )}
+                    <div class="customer-identity">
+                        <div class="customer-name-line">
+                            <div class="customer-name">
+                                ${escapeHTML(customer.name)}
+                            </div>
+                            <button
+                                class="customer-hot-toggle${customer.isHot ? " is-active" : ""}"
+                                type="button"
+                                data-action="toggle-hot"
+                                data-id="${escapeHTML(customer.id)}"
+                                aria-pressed="${customer.isHot === true}"
+                                aria-label="${customer.isHot ? "Sıcak müşteri işaretini kaldır" : "Sıcak müşteri olarak işaretle"}"
+                                title="${customer.isHot ? "Sıcak müşteri işaretini kaldır" : "Sıcak müşteri olarak işaretle"}"
+                            >
+                                <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">
+                                    <path d="M12 22a7.5 7.5 0 0 0 7.5-7.5c0-2.8-1.2-5.2-3.5-7.3.1 2-.4 3.1-1.2 3.7C14.8 7.4 12.7 5 10 2c.3 3.8-1.4 5.8-3.3 8.1A7.5 7.5 0 0 0 12 22Z"/>
+                                    <path class="customer-hot-core" d="M12 19.4a3 3 0 0 0 3-3c0-1.2-.5-2.2-1.6-3.3 0 1-.4 1.6-1 2-.2-1.3-1-2.3-2-3.3.1 1.5-.5 2.4-1.1 3.2a3 3 0 0 0 2.7 4.4Z"/>
+                                </svg>
+                            </button>
                         </div>
 
                         <div class="customer-tc">
@@ -210,6 +283,7 @@ function renderCustomers() {
                                       )}`
                                     : "TC bilgisi yok"
                             }
+                            ${extraCount ? `<span class="customer-insured-count">+${extraCount} sigortalı</span>` : ""}
                         </div>
                     </div>
 
@@ -229,33 +303,21 @@ function renderCustomers() {
                 </div>
 
                 <div>
-                    <span class="product-badge">
-                        ${escapeHTML(
-                            customer.product
-                        )}
-                    </span>
+                    <div class="customer-product-list">${productBadges}</div>
                 </div>
 
                 <div>
-                    <span class="status-badge ${statusClass(
-                        customer.status
-                    )}">
-                        ${escapeHTML(
-                            customer.status
-                        )}
-                    </span>
+                    ${getCustomerStatuses(customer).map(item =>
+                        `<span class="status-badge ${statusClass(item)}">${escapeHTML(item)}</span>`
+                    ).join(" ")}
                 </div>
 
                 <div>
-                    <span class="date-value">
-                        ${formatDateTime(
-                            customer.lastCall
-                        )}
-                    </span>
+                    <span class="date-value">${formatLastCallHTML(customer.lastCall)}</span>
                 </div>
 
                 <div>
-                    <span class="date-value ${
+                    <span title="${escapeHTML(getCustomerReminderSummary(customer))}" class="date-value ${
                         today
                             ? "today"
                             : ""
@@ -272,9 +334,7 @@ function renderCustomers() {
 
                         ${
                             customer.nextActionDate
-                                ? formatDateOnly(
-                                      customer.nextActionDate
-                                  )
+                                ? escapeHTML(getCustomerReminderSummary(customer, true))
                                 : "-"
                         }
                     </span>
@@ -355,6 +415,10 @@ function setupCustomerListActions() {
                 );
 
             if (!button) {
+                const row = event.target.closest(".customer-row");
+                if (row && customerList.contains(row)) {
+                    openCustomerDetail(row.dataset.id);
+                }
                 return;
             }
 
@@ -363,6 +427,25 @@ function setupCustomerListActions() {
 
             const action =
                 button.dataset.action;
+
+            if (action === "toggle-hot") {
+                const customer = customers.find(item => String(item.id) === String(id));
+                if (!customer) return;
+                const previous = customer.isHot === true;
+                customer.isHot = !previous;
+                if (saveLocalData() === false) {
+                    customer.isHot = previous;
+                    return;
+                }
+                button.classList.toggle("is-active", customer.isHot);
+                button.setAttribute("aria-pressed", String(customer.isHot));
+                const label = customer.isHot
+                    ? "Sıcak müşteri işaretini kaldır" : "Sıcak müşteri olarak işaretle";
+                button.setAttribute("aria-label", label);
+                button.title = label;
+                button.closest(".customer-row")?.classList.toggle("customer-row-hot", customer.isHot);
+                return;
+            }
 
             if (
                 action === "detail"
@@ -385,6 +468,15 @@ function setupCustomerListActions() {
             }
         }
     );
+
+    customerList.addEventListener("keydown", event => {
+        const row = event.target.closest(".customer-row");
+        if (event.target !== row || !["Enter", " "].includes(event.key)) {
+            return;
+        }
+        event.preventDefault();
+        openCustomerDetail(row.dataset.id);
+    });
 }
 
 /* =========================================================
@@ -403,12 +495,7 @@ function updateSummary() {
                 (customer) =>
                     customer.nextActionDate ===
                         getToday() &&
-                    customer.status !==
-                        "Poliçeleşti" &&
-                    customer.status !==
-                        "Olumsuz" &&
-                    customer.status !==
-                        "Yanlış"
+                    customerHasActiveFollowup(customer)
             ).length;
     }
 
@@ -416,8 +503,7 @@ function updateSummary() {
         $("offerCustomers").textContent =
             customers.filter(
                 (customer) =>
-                    customer.status ===
-                    "Teklif Verildi"
+                    getCustomerStatuses(customer).includes("Teklif Verildi")
             ).length;
     }
 
@@ -425,8 +511,7 @@ function updateSummary() {
         $("saleCustomers").textContent =
             customers.filter(
                 (customer) =>
-                    customer.status ===
-                    "Poliçeleşti"
+                    getCustomerStatuses(customer).includes("Poliçeleşti")
             ).length;
     }
 
@@ -437,4 +522,3 @@ function updateSummary() {
             ).length;
     }
 }
-

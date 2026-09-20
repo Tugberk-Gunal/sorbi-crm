@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Risk Takip</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="ui-refinements.css" />
+    <link rel="stylesheet" href="crm-integration.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <div class="risk-toolbar">
+        <div class="risk-toolbar-copy"><p class="eyebrow">ÖSS · YENİ DOĞAN</p><h1>Risk Takip</h1><p>Risk değerlendirmedeki başvuruları ve gelen kararları tek yerden takip edin.</p></div>
+        <button class="primary-button" id="newCustomerButton" type="button">+ Yeni Risk Kaydı</button>
+      </div>
+
+      <nav class="risk-overview" aria-label="Risk kayıtlarını filtrele">
+        <button class="filter risk-filter-review active" data-filter="Risk değerlendirmede" type="button"><span>Risk değerlendirme</span><b id="reviewCount">0</b></button>
+        <button class="filter risk-filter-discount" data-filter="İndirim onayı bekleniyor" type="button"><span>İndirim onayı</span><b id="discountCount">0</b></button>
+        <button class="filter risk-filter-approved" data-filter="Onaylandı" type="button"><span>Onaylandı</span><b id="approvedCount">0</b></button>
+        <button class="filter risk-filter-all" data-filter="all" type="button"><span>Tüm kayıtlar</span><b id="allCount">0</b></button>
+      </nav>
+
+      <section class="customer-panel" aria-label="Risk başvuruları">
+        <header class="panel-header">
+          <label class="search"><span aria-hidden="true">⌕</span><input id="searchInput" type="text" aria-label="Müşteri adı veya teklif numarası ara" placeholder="Teklif numarası ya da müşteri adı" /><button type="button" id="searchClear" class="search-clear" hidden aria-label="Aramayı temizle">×</button></label>
+        </header>
+        <div id="customerList" class="customer-list" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <dialog id="detailDialog" aria-labelledby="customerName">
+        <div id="detailContent">
+          <header class="detail-header">
+            <div><p class="eyebrow">BAŞVURU DETAYI</p><h2 id="customerName"></h2><p id="customerMeta"></p></div>
+            <div class="header-actions">
+              <button class="secondary-button" id="editCustomerButton" type="button">Düzenle</button>
+              <button class="icon-button" id="deleteCustomerButton" type="button" title="Kaydı sil" aria-label="Kaydı sil">🗑</button>
+              <button class="close" type="button" data-close-dialog="detailDialog" aria-label="Detayı kapat">×</button>
+            </div>
+          </header>
+          <div class="risk-detail-fields"><label class="risk-status-field"><span>Başvuru aşaması</span><select id="statusBadge" aria-label="Başvuru aşamasını değiştir"><option>Taslak</option><option>Risk değerlendirmede</option><option>İndirim onayı bekleniyor</option><option>Onaylandı</option><option>Geçersiz</option></select></label><div><span>Riske gönderildi</span><strong id="riskSubmittedAt">—</strong></div><div><span>İndirim onayına gönderildi</span><strong id="discountSubmittedAt">—</strong></div></div>
+          <div class="risk-offer-number"><div><span>TEKLİF NUMARASI</span><strong id="detailOfferNumber">—</strong></div><button id="copyOfferNumber" class="secondary-button" type="button" disabled>Teklif No Kopyala</button></div>
+          <p id="customerOfferDate" class="offer-date"></p>
+          <section class="notes-section"><div class="section-title"><div><p class="eyebrow">NOTLAR</p><h3>Görüşme notları</h3></div><button class="secondary-button" id="addNoteButton" type="button">+ Not ekle</button></div><div id="notesList" class="notes-list"></div></section>
+        </div>
+    </dialog>
+
+    <dialog id="customerDialog" aria-labelledby="customerDialogTitle">
+      <form id="customerForm">
+        <div class="modal-header">
+          <h2 id="customerDialogTitle">Yeni risk kaydı</h2>
+          <button type="button" class="close" data-close-dialog="customerDialog" aria-label="Pencereyi kapat">×</button>
+        </div>
+
+        <div class="risk-form-fields">
+          <label class="risk-form-full" for="linkedCrmCustomer">CRM müşterisi <span class="risk-field-optional">İsteğe bağlı</span>
+            <select id="linkedCrmCustomer"><option value="">Bağımsız risk kaydı</option></select>
+          </label>
+          <label for="newCustomerName">Müşteri adı <span class="risk-field-required">Zorunlu</span>
+            <input id="newCustomerName" required maxlength="80" autocomplete="name" placeholder="Örn. Ayşe Yılmaz" />
+          </label>
+          <label for="newCustomerCompany">Sigorta şirketi <span class="risk-field-optional">İsteğe bağlı</span>
+            <input id="newCustomerCompany" list="insuranceCompanyOptions" maxlength="100" placeholder="Şirket seçin veya yazın" />
+            <datalist id="insuranceCompanyOptions">
+              <option value="Türkiye Sigorta"></option>
+              <option value="Ak Sigorta"></option>
+              <option value="HDI"></option>
+            </datalist>
+          </label>
+          <label for="newCustomerPolicyNumber">Teklif numarası <span class="risk-field-optional">İsteğe bağlı</span>
+            <input id="newCustomerPolicyNumber" maxlength="50" placeholder="Varsa teklif numarasını girin" />
+          </label>
+          <label for="newCustomerStatus">Durum
+            <select id="newCustomerStatus"><option>Risk değerlendirmede</option><option>İndirim onayı bekleniyor</option><option>Taslak</option><option>Onaylandı</option><option>Geçersiz</option></select>
+          </label>
+        </div>
+
+        <div class="risk-form-dates" role="group" aria-labelledby="riskFormDatesTitle">
+          <h3 id="riskFormDatesTitle">Tarihler</h3>
+          <div class="risk-form-fields">
+            <label for="newCustomerSubmittedAt">Riske gönderim tarihi <span id="riskDateRequired" class="risk-field-required" hidden>Zorunlu</span><span id="riskDateOptional" class="risk-field-optional">İsteğe bağlı</span>
+              <input id="newCustomerSubmittedAt" type="date" />
+            </label>
+            <label for="newDiscountSubmittedAt">İndirim onayına gönderim tarihi <span id="discountDateRequired" class="risk-field-required" hidden>Zorunlu</span><span id="discountDateOptional" class="risk-field-optional">İsteğe bağlı</span>
+              <input id="newDiscountSubmittedAt" type="date" />
+            </label>
+            <label for="newCustomerOfferDate">Teklif tarihi <span class="risk-field-optional">İsteğe bağlı</span>
+              <input id="newCustomerOfferDate" type="date" />
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-actions risk-form-actions">
+          <button type="button" data-close-dialog="customerDialog" class="text-button">Vazgeç</button>
+          <button type="submit" class="primary-button" id="saveCustomerButton">Risk kaydını oluştur</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="confirmDialog"><div class="modal-header"><div><p class="eyebrow">ONAY GEREKİYOR</p><h2 id="confirmTitle">Emin misiniz?</h2></div><button type="button" class="close" data-close-dialog="confirmDialog" aria-label="Pencereyi kapat">×</button></div><p id="confirmMessage" class="confirm-message"></p><div class="modal-actions"><button type="button" data-close-dialog="confirmDialog" class="text-button">Vazgeç</button><button type="button" class="primary-button danger" id="confirmActionButton">Sil</button></div></dialog>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <dialog id="noteDialog"><form id="noteForm"><div class="modal-header"><div><p class="eyebrow" id="noteDialogLabel">NOT</p><h2 id="noteDialogTitle">Not ekle</h2></div><button type="button" class="close" data-close-dialog="noteDialog" aria-label="Pencereyi kapat">×</button></div><label>Notunuz<textarea id="noteText" required maxlength="2000" placeholder="Müşteriyle ilgili notunuzu yazın..."></textarea></label><div class="modal-actions"><button type="button" data-close-dialog="noteDialog" class="text-button">Vazgeç</button><button type="submit" class="primary-button" id="saveNoteButton">Notu kaydet</button></div></form></dialog>
+    <script src="risk-logic.js"></script>
+    <script src="app.js"></script>
+    <script src="crm-integration.js"></script>
+  </body>
+</html>
